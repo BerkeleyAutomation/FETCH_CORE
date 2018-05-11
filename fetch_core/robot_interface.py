@@ -35,12 +35,15 @@ class Robot_Interface(object):
         self.gripper = Gripper()
         self.torso = Torso()
 
+        self.tucked_arm = [1.3200, 1.3999, -0.1998, 1.7199, 3.3468e-06, 1.6600,
+                -3.4037e-06]
+
         # TODO Need something similar for the Fetch. For the HSR this returns
         # the (x,y,z) of the base w.r.t. the map's origin. 
         # https://docs.hsr.io/manual_en/development/base_python_interface.html
         # I think we use the 'odom' topic. Then in `position_start_pose` we need
         # a substitute for `self.omni_base.go_abs(...)` ... again, see HSR docs
-        # for detials.
+        # for details.
         #self.start_pose = self.omni_base.pose
 
 
@@ -49,18 +52,19 @@ class Robot_Interface(object):
         
         The HSR uses `whole_body.move_to_go()` which initializes an appropriate
         posture so that the hand doesn't collide with movement. For the Fetch,
-        we can probably set the torso height at zero, and set joints so that the
-        robot is in its "tucked" position? (Or perhaps we could set all joints
-        to zero, but that results in a fully extended arm out in fromt.)
+        we should probably make the torso extend, so the arms can extend more
+        easily without collisions. We should also probably keep the arm in the
+        tucked position to start. We'll need to experiment.
         """
-        raise NotImplementedError()
+        self.torso.set_height(0.2)
+        self.arm.move_to_joints( self.arm_joints.from_list(self.tucked_arm) )
 
 
     def head_start_pose(self):
         """Hard-coded starting pose for the robot's head.
         
         TODO these values were taken from the HSR. The Fetch likely needs to use
-        a different pan and tilt.
+        a different pan and tilt. We'll need to experiment.
         """
         self.head.pan_tilt(pan=1.5, tilt=-0.8)
 

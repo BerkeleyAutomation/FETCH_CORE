@@ -2,3 +2,4 @@
 *.swo
 *.png
 *.egg-info
+*.pyc

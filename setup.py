@@ -3,9 +3,9 @@ Setup of Fetch CORE Tools
 """
 from setuptools import setup
 
-setup(name='core',
-      description='Fetch_Core',
+setup(name='fetch_core',
+      description='Fetch Code',
       author='Ajay Tanwani',
       author_email='aktanwani@gmail.com',
-      packages=['core'],
+      packages=['fetch_core'],
 )

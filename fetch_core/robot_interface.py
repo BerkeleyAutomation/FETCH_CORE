@@ -6,7 +6,7 @@ from sensor_msgs.msg import Joy
 from tf import TransformListener, TransformBroadcaster
 from cv_bridge import CvBridge, CvBridgeError
 import rospy
-import config_core as cfg
+#import config_core as cfg # ?
 import numpy as np
 from arm import Arm
 from arm_joints import ArmJoints
@@ -20,8 +20,13 @@ from torso import Torso
 class Robot_Interface(object):
     """ TODO """
 
-    def __init__(self):
-        """ TODO """
+    def __init__(self, simulation):
+        """Initializes various aspects of the Fetch.
+        
+        TODOs: get things working, also use `simulation` flag to change ROS
+        topic names if necessary (especially for the cameras!).
+        """
+        rospy.init_node("fetch")
         self.arm = Arm()
         self.arm_joints = ArmJoints()
         self.base = Base()
@@ -52,7 +57,11 @@ class Robot_Interface(object):
 
 
     def head_start_pose(self):
-        """Hard-coded starting pose for the robot's head."""
+        """Hard-coded starting pose for the robot's head.
+        
+        TODO these values were taken from the HSR. The Fetch likely needs to use
+        a different pan and tilt.
+        """
         self.head.pan_tilt(pan=1.5, tilt=-0.8)
 
 
@@ -79,7 +88,8 @@ class Robot_Interface(object):
     def get_depth(self, point, d_img):
         """Compute mean depth near grasp point.
 
-        NOTE: assumes that we have a simlar `cfg.ZRANGE` as with the HSR.
+        NOTE: assumes that we have a simlar `cfg.ZRANGE` as with the HSR. I'm
+        not sure where exactly this comes from.
         """
         y, x = int(point[0]), int(point[1])
         z_box = d_img[y-cfg.ZRANGE:y+cfg.ZRANGE, x-cfg.ZRANGE:x+cfg.ZRANGE]
@@ -128,7 +138,7 @@ class Robot_Interface(object):
 
 
     def pan_head(self, tilt):
-        """Adjusts tilt of the robot, keeping pan at zero.
+        """Adjusts tilt of the robot, AND set pan at zero.
         
         Args: 
             tilt: Value in radians, positive means looking downwards.

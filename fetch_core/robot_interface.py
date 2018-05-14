@@ -19,9 +19,9 @@ from torso import Torso
 
 
 class Robot_Interface(object):
-    """ TODO """
+    """For usage with the Fetch robot."""
 
-    def __init__(self, simulation):
+    def __init__(self, simulation=True):
         """Initializes various aspects of the Fetch.
         
         TODOs: get things working, also use `simulation` flag to change ROS
@@ -40,13 +40,15 @@ class Robot_Interface(object):
         self.tucked_arm = [1.3200, 1.3999, -0.1998, 1.7199, 3.3468e-06, 1.6600,
                 -3.4037e-06]
 
-        # Initial (x,y,yaw) position of the robot wrt map origin.  The HSR's
+        # Initial (x,y,yaw) position of the robot wrt map origin. We keep this
+        # fixed so that we can reset to this position as needed. The HSR's
         # `omni_base.pose` (i.e., the start pose) returns (x,y,yaw) where yaw is
-        # the rotation about that axis (which must be the z axis). For the base,
+        # the rotation about that axis (intuitively, the z axis). For the base,
         # `base.odom` supplies both `position` and `orientation` attributes.
         start = copy.deepcopy(self.base.odom.position)
         yaw = Base._yaw_from_quaternion(self.base.odom.orientation)
         self.start_pose = np.array([start.x, start.y, yaw])
+        self.turn_speed = 0.3
 
 
     def body_start_pose(self):
@@ -72,61 +74,63 @@ class Robot_Interface(object):
 
 
     def position_start_pose(self, offsets=None):
-        """Assigns the robot's base to some pose.
-        
-        The HSR code used: self.omni_base.go(p[0],p[1],p[2],300,relative=False)
-        which sends robot to x, y, yaw-axis, with time-out (300) and with
-        absolute (not relative) coordinates. 
-        
-        Right now, we use an ugly workaround, where we have our target (x,y),
-        compute the distance traveled, and then derive the angle. Then we turn
-        according to that angle, and go forward. Finally, we do a final turn
-        which corresponds to the target yaw at the end. Note that the final turn
-        will only turn relative to the angle, so (naively) we first undo the
-        original turn, then we go forward with the actual desired turn.
-        
-        This assumes the z-coordinate stays at zero, and that the yaw is
-        simply the angle about the z-axis.
+        """Assigns the robot's base to some starting pose.
 
+        Mainly to "reset" the robot to the original starting position (and also,
+        rotation about base axis) after it has moved, usually w/no offsets.
+        
+        Ugly workaround: we have target (x,y), and compute the distance to the
+        point and the angle. We turn the Fetch according to that angle, and go
+        forward. Finally, we do a second turn which corresponds to the target
+        yaw at the end. This turns w.r.t. the current angle, so we undo the
+        effect of the first turn.  See `examples/test_position_start_pose.py`
+        for tests.
+        
         Args:
             offsets: a list of length 3, indicating offsets in the x, y, and
             yaws, respectively, to be added onto the starting pose.
         """
-        p = np.copy(self.start_pose)
-        #start = np.copy(self.start_pose)
+        current_pos = copy.deepcopy(self.base.odom.position)
+        current_theta = Base._yaw_from_quaternion(self.base.odom.orientation) # [-pi, pi]
+        ss = np.array([current_pos.x, current_pos.y, current_theta])
+
+        # Absolute target position and orientation specified with `pp`.
+        pp = np.copy(self.start_pose)
         if offsets:
-            p += np.array(offsets)
+            pp += np.array(offsets)
 
-        # We have our target position.
-        targ_x = p[0]
-        targ_y = p[1]
-        targ_z_angle = p[2] # TODO check that this is desired semantics wrt HSR
+        # Get distance to travel, critically assumes `pp` is starting position.
+        dist = np.sqrt( (ss[0]-pp[0])**2 + (ss[1]-pp[1])**2 )
+        rel_x = ss[0] - pp[0]
+        rel_y = ss[1] - pp[1]
+        assert -1 <= rel_x / dist <= 1
+        assert -1 <= rel_y / dist <= 1
 
-        # TODO need to test carefully ...
+        # But we also need to be *facing* the correct direction, w/input [-1,1].
+        # First, get the opposite view (facing "outwards"), then flip by 180.
+        desired_facing = np.arctan2(rel_y, rel_x) # [-pi, pi], facing outward
+        desired_theta  = math.pi + desired_facing # [0, 2*pi], flip by 180
+        if desired_theta > math.pi:
+            desired_theta -= 2*math.pi # [-pi, pi]
+ 
+        # Reconcile with the current theta. Got this by basically trial/error
+        angle = desired_theta - current_theta  # [-2*pi, 2*pi]
+        if angle > math.pi:
+            angle -= 2*math.pi 
+        elif angle < -math.pi:
+            angle += 2*math.pi 
 
-        ## # Get distances and compute angles. All x and y here are absolute values.
-        ## dist = np.sqrt( (start.x-targ_x)**2 + (start.y-targ_y)**2 )
-        ## rel_x = targ_x - start.x
-        ## rel_y = targ_y - start.y
-        ## assert -1 <= rel_x / dist <= 1
-        ## assert -1 <= rel_y / dist <= 1
-        ## first_angle_v1 = np.arccos(rel_x / dist)
-        ## first_angle_v2 = np.arcsin(rel_y / dist)
-        ## # After we've gone forward we need to undo the effect of our first turn.
-        ## targ_z = targ_z_angle - (first_angle_v1*(180/math.pi))
+        self.base.turn(angular_distance=angle, speed=self.turn_speed)
+        self.base.go_forward(distance=dist, speed=0.2)
 
-        ## # Note that the output of np.arccos, np.arcsin are in radians.
-        ## print("rel_x, rel_y: {} and {}".format(rel_x, rel_y))
-        ## print("first turn at angle {} (or {})".format(first_angle_v1, first_angle_v2))
-        ## print("in degrees, {} (or {})".format(
-        ##         first_angle_v1 * (180/math.pi), first_angle_v2 * (180/math.pi))
-        ## )
-        ## print("targ_z in degrees (including undoing first turn): {}".format(targ_z))
-
-        ## # Finally, do desired movement.
-        ## base.turn(first_angle_v1)
-        ## base.go_forward(distance=dist, speed=0.2)
-        ## base.turn(targ_z * (math.pi / 180))
+        # Back at the start x, y, but now need to consider the _second_ turn.
+        # The robot is facing at `desired_theta` rads, but wants `pp[2]` rads.
+        final_angle = pp[2] - desired_theta
+        if final_angle > math.pi:
+            final_angle -= 2*math.pi 
+        elif final_angle < -math.pi:
+            final_angle += 2*math.pi 
+        self.base.turn(angular_distance=final_angle, speed=self.turn_speed)
 
 
     def get_img_data(self):

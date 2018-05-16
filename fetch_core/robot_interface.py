@@ -33,7 +33,7 @@ class Robot_Interface(object):
         self.base = Base()
         self.camera = RGBD()
         self.head = Head()
-        self.gripper = Gripper()
+        self.gripper = Gripper(self.camera)
         self.torso = Torso()
 
         # Tucked arm starting joint angle configuration
@@ -174,8 +174,8 @@ class Robot_Interface(object):
 
 
     def create_grasp_pose(self, x, y, z, rot):
-        """ TODO """
-        raise NotImplementedError()
+        pose_name = self.gripper.create_grasp_pose(x, y, z, rot)
+        return pose_name
 
         
     def open_gripper(self):

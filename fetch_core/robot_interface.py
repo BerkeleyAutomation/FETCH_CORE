@@ -60,7 +60,7 @@ class Robot_Interface(object):
         easily without collisions. We should also probably keep the arm in the
         tucked position to start. We'll need to experiment.
         """
-        self.torso.set_height(0.2)
+        self.torso.set_height(0.4)
         self.arm.move_to_joints( self.arm_joints.from_list(self.tucked_arm) )
 
 

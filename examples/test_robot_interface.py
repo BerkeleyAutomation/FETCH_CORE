@@ -1,4 +1,7 @@
-""" Use for extensive testing of the new Fetch interface. """
+""" Use for extensive testing of the new Fetch interface. 
+
+Tested and working for: Gazebos imulator and physical robot. :)
+"""
 from fetch_core.robot_interface import Robot_Interface
 import cv2, os, sys, time
 import numpy as np

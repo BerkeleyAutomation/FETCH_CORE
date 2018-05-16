@@ -107,7 +107,7 @@ class Gripper(object):
                     'grasp_i_'+str(count))
 
     def broadcast_poses(self,position,rot):
-        #while True:
+        """TODO: figure out unit of depth image: if meters do nothing"""
 
         count = 0
 

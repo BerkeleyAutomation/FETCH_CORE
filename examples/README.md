@@ -6,7 +6,7 @@ Examples to test out the Fetch.
   torso, this we don't need to do much
 
 
-- `test_position_start_pose.py` for testing if we can move back to a specified
+- `test_base_and_position.py` for testing if we can move back to a specified
   starting location, also testing base movement more generally
 
 

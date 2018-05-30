@@ -4,6 +4,14 @@ Examples to test out the Fetch. See repository README for status of which tests
 are passing, and usage.
 
 
+
+## Moving to Poses
+
+**TODO TESTING IN PROGRESS**
+
+This is the most important kind of test for us so please hurry up ...
+
+
 ## Base Rotation and Forward Movement
 
 From running `python test_base_and_position.py`:
@@ -104,3 +112,43 @@ closer to the target.
 Also, I turned the robot on and didn't modify the position before proceeding
 with experiments, and I note that the y-coordinate can be off by a few
 millimeters (should be 0 throughout). But that's probably not a concern.
+
+Let's move for longer distances, so 20cm:
+
+```
+Now test with speed = 0.1 meters/sec
+
+[WallTime: 1527723056.326300] start_pose: [   0.5742    0.1444  177.5047]
+[WallTime: 1527723061.090067] pose:       [   0.3403    0.157   175.6014]
+[WallTime: 1527723061.090457] xy distance: 0.2342
+
+[WallTime: 1527723136.295692] start_pose: [   0.3403    0.157   175.6014]
+[WallTime: 1527723139.537986] pose:       [   0.102     0.1747  175.7031]
+[WallTime: 1527723139.538535] xy distance: 0.2390
+
+[WallTime: 1527723177.866473] start_pose: [   0.1031    0.1746  175.7031]
+[WallTime: 1527723181.308761] pose:       [  -0.1296    0.1919  175.7612]
+[WallTime: 1527723181.309201] xy distance: 0.2333
+
+Now test with speed = 0.05 meters/sec
+
+[WallTime: 1527723225.764847] start_pose: [  -0.1296    0.1919  175.7612]
+[WallTime: 1527723231.407195] pose:       [  -0.3453    0.2078  175.7321]
+[WallTime: 1527723231.407562] xy distance: 0.2163
+
+[WallTime: 1527723269.286191] start_pose: [  -0.3443    0.2077  175.7176]
+[WallTime: 1527723274.568423] pose:       [  -0.5602    0.2238  175.674 ]
+[WallTime: 1527723274.568809] xy distance: 0.2165
+
+[WallTime: 1527723446.533462] start_pose: [  -0.5602    0.2238  175.674 ]
+[WallTime: 1527723451.775800] pose:       [  -0.7754    0.2401  175.6304]
+[WallTime: 1527723451.776196] xy distance: 0.2158
+```
+
+With a speed of 0.1 m/sec we get the same errors as before, as expected. With
+0.05 m/sec we halve the error. So it seems like 0.05 m/sec could be a reasonable
+speed for us.
+
+Of course this assumes that the distance returned from the odometry base is
+actually accurate (that's the thing that lets us detect `start_pose` and
+`pose`).

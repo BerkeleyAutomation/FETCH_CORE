@@ -66,7 +66,8 @@ def test_return_to_start(robot):
 
     0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330
 
-    Haven't attempted on physical robot.
+    Haven't attempted on physical robot, probably won't do that since there
+    isn't much space and the turning method is very noisy.
     """
     deg = 0 # switch this number as needed
     print("\ndegree {}".format(deg))
@@ -99,19 +100,15 @@ def test_sequence_rotations(robot):
 
 def test_forward(robot):
     """Test accuracy of distances.
-
-    Results from when I made robot move 0.1m (10cm) each time and recorded
-    distances. Turns out the robot consistently overshoots at speed of 0.1
-    (trials 1-5) and then speed of 0.5 (trials 6-10).
     """
     pose1 = get_pose(robot)
-    rospy.loginfo("testing forward movement w/start_pose: {}".format(pose1))
+    rospy.loginfo("start_pose: {}".format(pose1))
 
     # Try to go forward 10 cm and measure via Fetch's odometry.
-    robot.base.go_forward(distance=0.100, speed=0.2)
-    rospy.sleep(2)
+    robot.base.go_forward(distance=0.200, speed=0.05)
+    rospy.sleep(1)
     pose2 = get_pose(robot)
-    rospy.loginfo("pose: {}".format(pose2))
+    rospy.loginfo("pose:       {}".format(pose2))
     rospy.loginfo("xy distance: {:.4f}".format(distance_xy(pose1,pose2)))
 
 

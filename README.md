@@ -2,22 +2,29 @@
 
 ## Overview
 
-This is our interface for the Fetch robot.
+This is our interface for the Fetch robot. Please import `fetch_core` in your
+code if using the Fetch, and go from there.
 
 Troubleshooting:
 
 - Make sure you are on the AUTOLAB WiFi with `ROS_MASTER_URI` set up
-  appropriately.
+  appropriately (e.g., in `~/.bashrc`).
 
 - Don't set the Fetch to be as high as 0.4m. The max height we should use in
   practice is probably around 0.35. Make sure the robot is not turned off at the
   max height, otherwise it may be necessary to physically press the robot down.
+  (We had to talk with Fetch support about this.)
 
 - If you get some missing trajectory service (e.g., of the Head) then try
   turning off the robot and the breaker, and then turning on the breaker and the
-  ON button.
+  ON button. Actually that's a good strategy in case anything looks odd.
+
+- If the Joystick (for teleoperation) won't connect to the Fetch, use the USB
+  cable to connect it with the Fetch head.
 
 ## Tests
+
+Look at `examples/`.
 
 To test these, make sure the physical Fetch is on (or the Gazebo simulator is
 running with some launch file) and that your machine is connected to the robot
@@ -43,8 +50,9 @@ Once the setup is ready, just call `python [script_name]`.
 - `test_base_and_position.py` for testing if we can move back to a specified
   starting location, also testing base movement more generally
 
-  **Status**: passing for simulator only
+  **Status**: passing for both simulator and physical robot, with some results
+  recorded in `examples/README.md`.
 
 - `test_move_to_pose.py` for moving the end-effectors to certain locations.
 
-  **Status**: have not tested
+  **Status**: HAVE NOT TESTED

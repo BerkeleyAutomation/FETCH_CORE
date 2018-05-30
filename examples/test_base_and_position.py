@@ -33,69 +33,40 @@ import copy, cv2, math, os, sys, time
 import numpy as np
 import rospy
 DEG_TO_RAD = np.pi / 180
+RAD_TO_DEG = 180 / np.pi
 np.set_printoptions(suppress=True, precision=4)
+
+# Utility methods
 
 def distance_xy(pose1, pose2):
     return np.sqrt( (pose1[0]-pose2[0])**2 + (pose1[1]-pose2[1])**2 )
 
-def get_pose(robot):
+def get_pose(robot, deg=True):
     start = copy.deepcopy(robot.base.odom.position)
     yaw = Base._yaw_from_quaternion(robot.base.odom.orientation)
-    return np.array([start.x, start.y, yaw])
+    result = np.array([start.x, start.y, yaw])
+    if deg:
+        result[2] *= RAD_TO_DEG
+    return result
 
-
-
-def simple_tests(robot):
-    """Test accuracy of distances.
-
-    Um ... this is REALLY bad.
+def get_to_start(robot):
+    """Bring robot to start, alternative is to use joystick.
+    BE CAREFUL to comment out or delete lines we don't want after doing this!
+    Then after the robot is at the desired position, don't call this at all.
     """
-    rospy.sleep(2)
-    pose1 = get_pose(robot)
-    rospy.loginfo("testing basic movement with start_pose: {}".format(pose1))
-
-    # Try to go forward 1.0 cm and measure via Fetch's odometry.
-    robot.base.go_forward(distance=1.0, speed=0.2)
-    rospy.sleep(2)
-    pose2 = get_pose(robot)
-    rospy.loginfo("pose: {}".format(pose2))
-    rospy.loginfo("xy distance: {:.4f}".format(distance_xy(pose1,pose2)))
+    #robot.base.turn(-100*DEG_TO_RAD, speed=0.3)
+    #robot.base.go_forward(distance=0.5, speed=0.2)
+    pass
 
 
-
-
-def test_sequence_rotations(robot):
-    """To see accuracy of rotations in physical robot.
-    
-    PROBLEM: this will hang? The first turn of 120 degrees only goes about 10
-    degrees before the program mysteriously hangs (it doesn't exit).
-    """
-    rospy.loginfo("testing basic movement with start_pose: {}".format(get_pose(robot)))
-    rospy.sleep(2)
-
-    deg = 120
-    robot.base.turn(deg*DEG_TO_RAD, speed=0.3)
-    rospy.loginfo("rotated 120 degrees")
-    rospy.loginfo("pose: {}".format(get_pose(robot)))
-    rospy.sleep(2) 
-
-    deg = 120
-    robot.base.turn(deg*DEG_TO_RAD, speed=0.3)
-    rospy.loginfo("rotated 120 more degrees (240 total)")
-    rospy.loginfo("pose: {}".format(get_pose(robot)))
-    rospy.sleep(2) 
-
-    deg = 120
-    robot.base.turn(deg*DEG_TO_RAD, speed=0.3)
-    rospy.loginfo("rotated 120 more degrees (360 total), should be back at start")
-    rospy.loginfo("pose: {}".format(get_pose(robot)))
-
-
+# Tests
 
 def test_return_to_start(robot):
-    """Degrees tested successfully: 
-    
+    """Degrees tested successfully in simulator: 
+
     0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330
+
+    Haven't attempted on physical robot.
     """
     deg = 0 # switch this number as needed
     print("\ndegree {}".format(deg))
@@ -105,12 +76,56 @@ def test_return_to_start(robot):
     robot.position_start_pose() 
 
 
+def test_sequence_rotations(robot):
+    """To see accuracy of rotations in physical robot.
+    """
+    rospy.loginfo("testing basic movement with start_pose: {}".format(get_pose(robot)))
+    rospy.sleep(2)
+
+    deg = -90
+    robot.base.turn(deg*DEG_TO_RAD, speed=0.3)
+    rospy.loginfo("rotated {} degrees".format(deg))
+    rospy.sleep(1) 
+    rospy.loginfo("pose: {}".format(get_pose(robot)))
+    rospy.sleep(4) 
+
+    deg = 90
+    robot.base.turn(deg*DEG_TO_RAD, speed=0.3)
+    rospy.loginfo("rotated {} degrees".format(deg))
+    rospy.sleep(1) 
+    rospy.loginfo("pose: {}".format(get_pose(robot)))
+    rospy.sleep(4) 
+
+
+def test_forward(robot):
+    """Test accuracy of distances.
+
+    Results from when I made robot move 0.1m (10cm) each time and recorded
+    distances. Turns out the robot consistently overshoots at speed of 0.1
+    (trials 1-5) and then speed of 0.5 (trials 6-10).
+    """
+    pose1 = get_pose(robot)
+    rospy.loginfo("testing forward movement w/start_pose: {}".format(pose1))
+
+    # Try to go forward 10 cm and measure via Fetch's odometry.
+    robot.base.go_forward(distance=0.100, speed=0.2)
+    rospy.sleep(2)
+    pose2 = get_pose(robot)
+    rospy.loginfo("pose: {}".format(pose2))
+    rospy.loginfo("xy distance: {:.4f}".format(distance_xy(pose1,pose2)))
+
 
 if __name__ == "__main__":
     rospy.loginfo("Initializing our robot (this may take about 10 seconds) ...")
     robot = Robot_Interface()
     robot.body_start_pose()
+    #get_to_start(robot)
 
-    #simple_tests(robot)
+    # Tested
     #test_sequence_rotations(robot)
+
+    # Still to test
+    test_forward(robot)
+
+    # Probably don't do in physical robot
     #test_return_to_start(robot)

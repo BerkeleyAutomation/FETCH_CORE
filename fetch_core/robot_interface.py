@@ -60,15 +60,9 @@ class Robot_Interface(object):
         we should probably make the torso extend, so the arms can extend more
         easily without collisions. We should also probably keep the arm in the
         tucked position to start. We'll need to experiment.
-
-        Update: for now, set height to be something small, tuck joints, then set
-        height back to zero so that we can move safely.
         """
-        self.torso.set_height(0.2)
-        time.sleep(1)
-        self.arm.move_to_joints( self.arm_joints.from_list(self.tucked_arm) )
-        time.sleep(1)
         self.torso.set_height(0.03) # give a little room
+        self.arm.move_to_joints( self.arm_joints.from_list(self.tucked_arm) )
 
 
     def head_start_pose(self):
@@ -206,14 +200,32 @@ class Robot_Interface(object):
             z_offset: Scalar offset in z-direction, offset is wrt the pose
                 specified by `pose_name`.
         """
-        # TODO: need to get the info for Point and Quaternion ... figure out
-        # what kind of reference frame to use?
-        #pose,quat = gripper.tl.lookupTransform('map', pose_name, rospy.Time(0))
-        #ps = PoseStamped()
-        #ps.header.frame_id = 'base_link'
-        #ps.pose = Pose(Point(x,y,z+z_offset), Quaternion(quat?))
-        #self.arm.move_to_pose(pose_stamped=ps)
-        raise NotImplementedError()
+        # TODO: I think this is how we implement this method, but I am not sure
+        # if the exact commands are correct and testing this is a bit cumbersome
+        # compared to other methods since we need a simulator set up and then to
+        # repeatedly create poses (use `create_grasp_pose`) and move to it. I
+        # think this is the right idea, though.
+
+        # See: 
+        #   http://wiki.ros.org/tf/Tutorials/Writing%20a%20tf%20listener%20%28Python%29
+        #   https://answers.ros.org/question/256354/does-tftransformlistenerlookuptransform-return-quaternion-position-or-translation-and-rotation/
+        # Not sure about the ordering of the first two args, and the first
+        # argument name (I assume it's some 'reference' coordinate frame).
+        point, quat = gripper.tl.lookupTransform('base_link', pose_name, rospy.Time(0))
+        point[2] += z_offset
+
+        # See:
+        #   https://github.com/cse481wi18/cse481wi18/blob/indigo-devel/applications/scripts/cart_arm_demo.py
+        #   https://github.com/cse481wi18/cse481wi18/wiki/Lab-19%3A-Cartesian-space-manipulation
+        ps = PoseStamped()
+        ps.header.frame_id = 'base_link'
+        ps.pose = Pose(
+                Point(point[0], point[1], point[2]), 
+                Quaternion(quat[0], quat[1], quat[2], quat[3])
+        )
+
+        # See `arm.py` written by Justin Huang
+        self.arm.move_to_pose(pose_stamped=ps)
 
 
     def find_ar(self, ar_number):

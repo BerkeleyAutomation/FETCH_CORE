@@ -1,13 +1,5 @@
 # Test Examples
 
-Examples to test out the Fetch.
+Examples to test out the Fetch. See repository README for status of which tests
+are passing, and usage.
 
-- `test_robot_interface.py` for basic tests of gripper, cameras, head movement,
-  torso, this we don't need to do much
-
-
-- `test_base_and_position.py` for testing if we can move back to a specified
-  starting location, also testing base movement more generally
-
-
-- `test_move_to_pose.py` for moving the end-effectors to certain locations.

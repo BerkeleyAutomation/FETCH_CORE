@@ -5,7 +5,7 @@ from geometry_msgs.msg import Twist
 from sensor_msgs.msg import Joy
 from tf import TransformListener, TransformBroadcaster
 from cv_bridge import CvBridge, CvBridgeError
-import copy, math, rospy
+import copy, math, rospy, time
 #import config_core as cfg # ?
 import numpy as np
 
@@ -25,7 +25,8 @@ class Robot_Interface(object):
         """Initializes various aspects of the Fetch.
         
         TODOs: get things working, also use `simulation` flag to change ROS
-        topic names if necessary (especially for the cameras!).
+        topic names if necessary (especially for the cameras!). UPDATE: actually
+        I don't think this is necessary now, they have the same topic names.
         """
         rospy.init_node("fetch")
         self.arm = Arm()
@@ -59,16 +60,23 @@ class Robot_Interface(object):
         we should probably make the torso extend, so the arms can extend more
         easily without collisions. We should also probably keep the arm in the
         tucked position to start. We'll need to experiment.
+
+        Update: for now, set height to be something small, tuck joints, then set
+        height back to zero so that we can move safely.
         """
-        self.torso.set_height(0.4)
+        self.torso.set_height(0.2)
+        time.sleep(1)
         self.arm.move_to_joints( self.arm_joints.from_list(self.tucked_arm) )
+        time.sleep(1)
+        self.torso.set_height(0.03) # give a little room
 
 
     def head_start_pose(self):
         """Hard-coded starting pose for the robot's head.
         
         TODO these values were taken from the HSR. The Fetch likely needs to use
-        a different pan and tilt. We'll need to experiment.
+        a different pan and tilt. We'll need to experiment. Positive pan means
+        rotating counterclockwise when looking at robot from an aerial view.
         """
         self.head.pan_tilt(pan=1.5, tilt=-0.8)
 

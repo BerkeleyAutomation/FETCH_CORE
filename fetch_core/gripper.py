@@ -27,6 +27,7 @@ class Gripper(object):
     MAX_EFFORT = 100  # Max grasp force, in Newtons
 
     def __init__(self, cam):
+        # Michael Laskey
         not_read = True
         while not_read:
             try:
@@ -35,13 +36,14 @@ class Gripper(object):
                     not_read = False
             except:
                 rospy.logerr('info not recieved')
-        self._client = actionlib.SimpleActionClient(ACTION_SERVER, control_msgs.msg.GripperCommandAction)
-        self._client.wait_for_server(rospy.Duration(10))
-
         self.pcm = PCM()
         self.pcm.fromCameraInfo(cam_info)
         self.br = tf.TransformBroadcaster()
         self.tl = tf.TransformListener()
+
+        # Justin Huang
+        self._client = actionlib.SimpleActionClient(ACTION_SERVER, control_msgs.msg.GripperCommandAction)
+        self._client.wait_for_server(rospy.Duration(10))
 
 
     def open(self):
@@ -50,6 +52,7 @@ class Gripper(object):
         goal = control_msgs.msg.GripperCommandGoal()
         goal.command.position = OPENED_POS
         self._client.send_goal_and_wait(goal, rospy.Duration(10))
+
 
     def close(self, max_effort=MAX_EFFORT):
         """Closes the gripper.
@@ -62,6 +65,7 @@ class Gripper(object):
         goal.command.position = CLOSED_POS
         goal.command.max_effort = max_effort
         self._client.send_goal_and_wait(goal, rospy.Duration(10))
+
 
     def compute_trans_to_map(self,norm_pose,rot):
         """TODO: Figure out the transform reference frame by looking at camera_info"""

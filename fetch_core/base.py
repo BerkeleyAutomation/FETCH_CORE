@@ -71,8 +71,11 @@ class Base(object):
         start = copy.deepcopy(self.odom)
         rate = rospy.Rate(25)
         distance_from_start = self._linear_distance(start, self.odom)
+
+        #rospy.loginfo("fabs(distance): {:.3f}".format(math.fabs(distance)))
         while distance_from_start < math.fabs(distance):
             distance_from_start = self._linear_distance(start, self.odom)
+            #rospy.loginfo("dist from start: {:.3f}".format(distance_from_start))
             if distance_from_start >= math.fabs(distance):
                 return
             direction = -1 if distance < 0 else 1

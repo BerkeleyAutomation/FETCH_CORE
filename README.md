@@ -10,3 +10,6 @@ roslaunch fetch_moveit_config move_group.launch
 ```
 
 running in the background, for both the simulator and the real robot.
+
+
+How to test the poses? TODO

@@ -1,6 +1,6 @@
 import controller_manager_msgs.srv
 import geometry_msgs
-from geometry_msgs.msg import PoseStamped, Point, WrenchStamped
+from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion, WrenchStamped
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import Joy
 from tf import TransformListener, TransformBroadcaster
@@ -187,7 +187,24 @@ class Robot_Interface(object):
 
 
     def move_to_pose(self, pose_name, z_offset):
-        """ TODO """
+        """Moves to a pose.
+ 
+        In the HSR, moved the `hand_palm_link` to the frame named `pose_name` at
+        the correct pose. For the Fetch we should be able to extract the pose
+        from `pose_name` and then call the Arm's `move_to_pose` method.
+        
+        Args:
+            pose_name: A string name for the pose to go 
+            z_offset: Scalar offset in z-direction, offset is wrt the pose
+                specified by `pose_name`.
+        """
+        # TODO: need to get the info for Point and Quaternion ... figure out
+        # what kind of reference frame to use?
+        #pose,quat = gripper.tl.lookupTransform('map', pose_name, rospy.Time(0))
+        #ps = PoseStamped()
+        #ps.header.frame_id = 'base_link'
+        #ps.pose = Pose(Point(x,y,z+z_offset), Quaternion(quat?))
+        #self.arm.move_to_pose(pose_stamped=ps)
         raise NotImplementedError()
 
 

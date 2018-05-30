@@ -35,14 +35,14 @@ class Gripper(object):
                     not_read = False
             except:
                 rospy.logerr('info not recieved')
-
         self._client = actionlib.SimpleActionClient(ACTION_SERVER, control_msgs.msg.GripperCommandAction)
         self._client.wait_for_server(rospy.Duration(10))
 
         self.pcm = PCM()
-
         self.pcm.fromCameraInfo(cam_info)
         self.br = tf.TransformBroadcaster()
+        self.tl = tf.TransformListener()
+
 
     def open(self):
         """Opens the gripper.
@@ -130,13 +130,12 @@ class Gripper(object):
         time.sleep(0.3)
 
     def create_grasp_pose(self,x,y,z,rot):
-        """
-        Broadcast given pose and return its name
-        """
+        """Broadcast given pose and return its name
 
+        Note: all x, y, z, rot are scalars (so rot =/= all Euler angles or
+        quaternions)
+        """
         self.broadcast_poses([x,y,z],rot)
-
         grasp_name = 'grasp_'+str(self.count)
         self.count += 1
-
         return grasp_name

@@ -30,8 +30,8 @@ class Torso(object):
             height: The height, in meters, to set the torso to. Values range
                 from Torso.MIN_HEIGHT (0.0) to Torso.MAX_HEIGHT(0.4).
         """
-        height = min(height, 0.4)
-        height = max(height, 0.0)
+        height = min(height, MAX_HEIGHT)
+        height = max(height, MIN_HEIGHT)
 
         goal = control_msgs.msg.FollowJointTrajectoryGoal()
         goal.trajectory.joint_names.append(TORSO_JOINT_NAME)

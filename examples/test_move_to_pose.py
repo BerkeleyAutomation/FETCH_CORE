@@ -13,6 +13,7 @@ SCALE = np.pi / 180
 if __name__ == "__main__":
     print("Initializing our robot (this may take about 10 seconds) ...")
     robot = Robot_Interface()
+    print("finished Initializing")
     robot.body_start_pose()
 
     ps = PoseStamped()
@@ -22,6 +23,13 @@ if __name__ == "__main__":
     ps.pose.position.z = 1
     ps.pose.orientation.w = 1
 
+    pose = robot.create_grasp_pose(0.5, 0, 1, 1)
+
+    print("moving")
+    # Check for ability to move to pose
+    robot.move_to_pose(pose, 0) 
+
+    print("done moving")
     # Check for reachability via planning TODO
 
     # Check for reachability via inverse kinematics
@@ -30,4 +38,3 @@ if __name__ == "__main__":
         rospy.loginfo('Found IK!\n{}'.format(joints))
     else:
         rospy.loginfo('No IK found.')
-

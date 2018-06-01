@@ -44,6 +44,7 @@ class Gripper(object):
         # Justin Huang
         self._client = actionlib.SimpleActionClient(ACTION_SERVER, control_msgs.msg.GripperCommandAction)
         self._client.wait_for_server(rospy.Duration(10))
+        self.count = 0
 
 
     def open(self):
@@ -69,8 +70,7 @@ class Gripper(object):
 
     def compute_trans_to_map(self,norm_pose,rot):
         """TODO: Figure out the transform reference frame by looking at camera_info"""
-
-        pose = self.tl.lookupTransform('map','head_rgbd_sensor_rgb_frame', rospy.Time(0))
+        pose = self.tl.lookupTransform('odom', 'head_camera_rgb_frame', rospy.Time(0))
 
         M = tf.transformations.quaternion_matrix(pose[1])
         M_t = tf.transformations.translation_matrix(pose[0])
@@ -100,7 +100,7 @@ class Gripper(object):
                     rospy.Time.now(),
                     'grasp_i_'+str(count),
                     #'head_rgbd_sensor_link')
-                    'map')
+                    'odom')
 
             """TODO: figure out what to put as config"""
             self.br.sendTransform((0.0, 0.0, -0.05), # previously with z = config.gripper length
@@ -131,7 +131,7 @@ class Gripper(object):
 
         thread.start_new_thread(self.loop_broadcast,(norm_pose,base_rot,rot))
 
-        time.sleep(0.3)
+        rospy.sleep(0.3)
 
     def create_grasp_pose(self,x,y,z,rot):
         """Broadcast given pose and return its name

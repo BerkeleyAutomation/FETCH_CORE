@@ -211,8 +211,8 @@ class Robot_Interface(object):
         #   https://answers.ros.org/question/256354/does-tftransformlistenerlookuptransform-return-quaternion-position-or-translation-and-rotation/
         # Not sure about the ordering of the first two args, and the first
         # argument name (I assume it's some 'reference' coordinate frame).
-        point, quat = gripper.tl.lookupTransform('base_link', pose_name, rospy.Time(0))
-        point[2] += z_offset
+        point, quat = self.gripper.tl.lookupTransform('base_link', pose_name, rospy.Time(0))
+        z_point = point[2] + z_offset
 
         # See:
         #   https://github.com/cse481wi18/cse481wi18/blob/indigo-devel/applications/scripts/cart_arm_demo.py
@@ -220,12 +220,14 @@ class Robot_Interface(object):
         ps = PoseStamped()
         ps.header.frame_id = 'base_link'
         ps.pose = Pose(
-                Point(point[0], point[1], point[2]), 
+                Point(point[0], point[1], z_point), 
                 Quaternion(quat[0], quat[1], quat[2], quat[3])
         )
 
         # See `arm.py` written by Justin Huang
-        self.arm.move_to_pose(pose_stamped=ps)
+        error = self.arm.move_to_pose(pose_stamped=ps)
+        if error is not None:
+            rospy.logerr(error)
 
 
     def find_ar(self, ar_number):

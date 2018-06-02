@@ -52,7 +52,7 @@ class Robot_Interface(object):
         self.turn_speed = 0.3
 
 
-    def body_start_pose(self):
+    def body_start_pose(self, start_height=0.03, end_height=0.03):
         """Sets the robot's body to some initial configuration.
         
         The HSR uses `whole_body.move_to_go()` which initializes an appropriate
@@ -61,8 +61,9 @@ class Robot_Interface(object):
         easily without collisions. We should also probably keep the arm in the
         tucked position to start. We'll need to experiment.
         """
-        self.torso.set_height(0.03) # give a little room
+        self.torso.set_height(start_height)
         self.arm.move_to_joints( self.arm_joints.from_list(self.tucked_arm) )
+        self.torso.set_height(end_height)
 
 
     def head_start_pose(self):
@@ -175,8 +176,11 @@ class Robot_Interface(object):
         return rot
 
 
-    def create_grasp_pose(self, x, y, z, rot):
-        pose_name = self.gripper.create_grasp_pose(x, y, z, rot)
+    def create_grasp_pose(self, x, y, z, rot, intuitive=False):
+        """ If `intuitive=True` then x,y,z,rot interpreted wrt some link in the
+        world, e.g., 'odom' for the Fetch.
+        """
+        pose_name = self.gripper.create_grasp_pose(x, y, z, rot, intuitive)
         return pose_name
 
         
@@ -212,6 +216,9 @@ class Robot_Interface(object):
         # Not sure about the ordering of the first two args, and the first
         # argument name (I assume it's some 'reference' coordinate frame).
         point, quat = self.gripper.tl.lookupTransform('base_link', pose_name, rospy.Time(0))
+        print("After looking up transform from {} to base_link.".format(pose_name))
+        print("\tpoint: {}".format(point))
+        print("\tquat: {}".format(quat))
         z_point = point[2] + z_offset
 
         # See:

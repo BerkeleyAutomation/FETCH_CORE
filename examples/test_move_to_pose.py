@@ -8,33 +8,39 @@ from geometry_msgs.msg import PoseStamped
 import cv2, math, os, sys, time
 import numpy as np
 import rospy
-SCALE = np.pi / 180
+DEG_TO_RAD = np.pi / 180
+RAD_TO_DEG = 180 / np.pi
 
 if __name__ == "__main__":
-    print("Initializing our robot (this may take about 10 seconds) ...")
+    rospy.loginfo("Initializing our robot (this may take about 10 seconds) ...")
     robot = Robot_Interface()
-    print("finished Initializing")
-    robot.body_start_pose()
+    rospy.loginfo("finished Initializing")
+    #robot.body_start_pose(start_height=0.15, end_height=0.15)
 
-    ps = PoseStamped()
-    ps.header.frame_id = 'base_link'
-    ps.pose.position.x = 0.5
-    ps.pose.position.y = 0
-    ps.pose.position.z = 1
-    ps.pose.orientation.w = 1
+    # W/out this, we get missing topics when creating poses
+    time.sleep(2) 
 
-    pose = robot.create_grasp_pose(0.5, 0, 1, 1)
+    # Visualize in rviz to debug positioning and rotation
+    #pose0 = robot.create_grasp_pose(1, 0, 0, 0, intuitive=True)
+    #time.sleep(2)
+    # Ugh, locks??
+    #pose1 = robot.create_grasp_pose(1, 0, 0, 180*DEG_TO_RAD, intuitive=True)
+    #time.sleep(2)
 
-    print("moving")
-    # Check for ability to move to pose
-    robot.move_to_pose(pose, 0) 
+    # The one we actually move to.
+    pose = robot.create_grasp_pose(0.7, 0, 0.5, 0, intuitive=True)
+    time.sleep(2)
 
-    print("done moving")
-    # Check for reachability via planning TODO
+    # Check for ability to move to pose via motion planning
+    print("started moving")
+    robot.move_to_pose(pose, z_offset=0) 
+    print("finished moving")
 
     # Check for reachability via inverse kinematics
-    joints = robot.arm.compute_ik(pose_stamped=ps)
-    if joints:
-        rospy.loginfo('Found IK!\n{}'.format(joints))
-    else:
-        rospy.loginfo('No IK found.')
+
+    ## joints = robot.arm.compute_ik(pose_stamped=ps)
+    ## if joints:
+    ##     rospy.loginfo('Found IK!\n{}'.format(joints))
+    ## else:
+    ##     rospy.loginfo('No IK found.')
+    rospy.spin()

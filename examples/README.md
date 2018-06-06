@@ -1,22 +1,118 @@
-# Test Examples
-
 Examples to test out the Fetch. See repository README for status of which tests
 are passing, and usage.
 
 
 
-## Moving to Poses
+# Moving to Poses
 
-**TODO TESTING IN PROGRESS**
+Here is the pipeline **when testing using the simulator**:
 
-This is the most important kind of test for us so please hurry up ...
+Run `roslaunch fetch_gazebo simulation.launch` in a command line.
+
+In another window: `roslaunch fetch_moveit_config move_group.launch`.
+
+In *another* window: `rosrun rviz rviz`.
+
+Finally, in a fourth window, run `python test_move_to_pose.py`.
+
+For the physical robot, it's similar except you don't need to run the Gazebo
+simulator. You need to connect with the robot for rviz to display it, though.
+
+A few pointers:
+
+- In `robot_interface.py` we have `move_to_pose()` which will take in a pose. In
+  application code, this given pose will be something that results from a
+  complicated pipeline which translates from camera coordinates to position and
+  orientation.
+  
+- If we just want to test that the robot is going somewhere, then it's easiest
+  when we can define a pose with respect to the `base_link` of the robot (which
+  moves with the robot, unlike `odom`). That way we can just tell the
+  end-effector to be x meters in front of it, y meters to the right/left
+  (depending on perspective), etc.
+
+- To make the pose, simply call `create_grasp_pose()` with `intuitive=True`.
+
+- To accommodate the above, in `gripper.py`, instead of assuming the pose came
+  from a camera originally, we have an "intuitive" setting which lets us define
+  a pose with respect to the base link. Either way, a new thread is started
+  which creates the pose.
+
+- We left `arm.py` unchanged. We are just calling its `move_to_pose` and that
+  uses MoveIt.
 
 
-## Base Rotation and Forward Movement
+Some stuff to investigate:
+
+- How to control the speed to make it slower.
+
+- How to figure out if there will be collisions with the base, etc.
+
+- How to avoid locks and issues with multiple frames.
+
+## Results for Creating Poses
+
+Here's what we get after running the test with these critical lines:
+
+```
+def debug_pose_location_rviz():
+    pose0 = robot.create_grasp_pose(1, 0, 0, 0, intuitive=True)
+    time.sleep(2)
+    pose1 = robot.create_grasp_pose(1, 0, 0, 90*DEG_TO_RAD, intuitive=True)
+    time.sleep(2)
+```
+
+TL;DR: create two poses in front of the robot by x=1 meter. The first pose has
+the identity rotation, and the second pose should be rotated 90 degrees about
+the z-axis. Each of these calls will create *two* frames: `grasp_i_k` and then
+`grasp_k`, where `k` is an index starting at 0 and incrementing sequentially.
+
+By default, `grasp_i_k` is only defined with a position offset w.r.t.
+`base_link`, with the identity rotation. The rotation that we pass in
+`robot.create_grasp_pose()` is for the `grasp_k` pose and that is rotation
+w.r.t. `grasp_i_k`.
+
+Here's what we get:
+
+![](images/pose_0.png)
+
+Let's remove the robot model. Now we can see the `base_link`:
+
+![](images/pose_1.png)
+
+Above, I've highlighted `grasp_i_0` and `grasp_0`. The `grasp_i_0` frame is at
+the expected spot,  1 meter in front of the robot (since that's the x-axis
+direction) and with no rotation.
+
+The `grasp_0` is -0.05m above (hence, 0.05m *below*), because of some hard-coded
+decisions in `Gripper.loop_broadcast_intuitive()`; I think this is supposed to
+represent an offset to take into account the robot's gripper when lowering or
+raising it. This is something we'll need to tune.
+
+Now let's highlight `grasp_i_1` and `grasp_1`:
+
+![](images/pose_2.png)
+
+As expected, `grasp_i_1` coincides with `grasp_i_0` but `grasp_1` not only has
+the usual -0.05m offset in the z-direction, but is also rotated 90 degrees about
+the z-axis.
+
+The offset of -0.05m should be tuned appropriately for the application. Also, in
+the Siemens code we have, the `grasp_i_k` poses should have some non-identity
+rotation w.r.t. the `base_link`, so the visualization won't be as simple as it
+appears here.
+
+
+## Results for Moving to Poses
+
+TODO
+
+
+# Base Rotation and Forward Movement
 
 From running `python test_base_and_position.py`:
 
-### Rotation
+## Rotation
 
 Testing the base *rotation* movement, where I make the robot turn X degrees,
 then -X degrees, and try to see if it comes back to the target.
@@ -50,7 +146,7 @@ clear that the rotation axis isn't at the true center since the robot
 repeatedly moves _backwards_ despite rotating X and then -X degrees. All
 this is with the torso lowered to 0.03m to be safe.
 
-### Forward Movement
+## Forward Movement
 
 Testing the base *forward* movement with `test_forward` method for moving the
 robot 0.1 meters (10 centimeters) each time:
@@ -152,3 +248,7 @@ speed for us.
 Of course this assumes that the distance returned from the odometry base is
 actually accurate (that's the thing that lets us detect `start_pose` and
 `pose`).
+
+
+
+[1]:http://mirror.umd.edu/roswiki/doc/diamondback/api/tf/html/python/tf_python.html

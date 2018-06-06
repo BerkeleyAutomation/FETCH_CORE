@@ -11,36 +11,42 @@ import rospy
 DEG_TO_RAD = np.pi / 180
 RAD_TO_DEG = 180 / np.pi
 
+
+def debug_pose_location_rviz():
+    """TODO: figure out locking issues, and what rotations mean"""
+    pose0 = robot.create_grasp_pose(1, 0, 0, 0, intuitive=True)
+    time.sleep(2)
+    pose1 = robot.create_grasp_pose(1, 0, 0, 90*DEG_TO_RAD, intuitive=True)
+    time.sleep(2)
+
+
+def test_motion_planning():
+    """It's helpful if only one pose is created to move to."""
+    pose = robot.create_grasp_pose(0.7, 0, 0.5, 0, intuitive=True)
+    time.sleep(2)
+    robot.move_to_pose(pose, z_offset=0) 
+
+
+def test_inverse_kinematics():
+    """TODO: we haven't tested this"""
+    joints = robot.arm.compute_ik(pose_stamped=ps)
+    if joints:
+        rospy.loginfo('Found IK!\n{}'.format(joints))
+    else:
+        rospy.loginfo('No IK found.')  
+
+
 if __name__ == "__main__":
     rospy.loginfo("Initializing our robot (this may take about 10 seconds) ...")
     robot = Robot_Interface()
     rospy.loginfo("finished Initializing")
     #robot.body_start_pose(start_height=0.15, end_height=0.15)
+    time.sleep(2) # w/out this, we get missing topics when creating poses
 
-    # W/out this, we get missing topics when creating poses
-    time.sleep(2) 
+    # Now test! Comment out as desired.
 
-    # Visualize in rviz to debug positioning and rotation
-    #pose0 = robot.create_grasp_pose(1, 0, 0, 0, intuitive=True)
-    #time.sleep(2)
-    # Ugh, locks??
-    #pose1 = robot.create_grasp_pose(1, 0, 0, 180*DEG_TO_RAD, intuitive=True)
-    #time.sleep(2)
+    debug_pose_location_rviz()
+    #test_motion_planning()
+    #test_inverse_kinematics()
 
-    # The one we actually move to.
-    pose = robot.create_grasp_pose(0.7, 0, 0.5, 0, intuitive=True)
-    time.sleep(2)
-
-    # Check for ability to move to pose via motion planning
-    print("started moving")
-    robot.move_to_pose(pose, z_offset=0) 
-    print("finished moving")
-
-    # Check for reachability via inverse kinematics
-
-    ## joints = robot.arm.compute_ik(pose_stamped=ps)
-    ## if joints:
-    ##     rospy.loginfo('Found IK!\n{}'.format(joints))
-    ## else:
-    ##     rospy.loginfo('No IK found.')
     rospy.spin()

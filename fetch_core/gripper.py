@@ -87,14 +87,14 @@ class Gripper(object):
 
 
     def create_grasp_pose(self, x, y, z, rot, intuitive=False):
-        """Broadcast given pose and return its name
+        """Broadcast given pose and return its name.
 
-        Args: all (x, y, z, rot) are scalars. x, y represent image coordinates,
-        z represents depth, rot represents one single angle (not all Euler
-        angles, not all the quaternion components, etc).
-
-        Unless intuitive=True, then x,y,z,rot are values wrt the odom frame.
-        Keeping this False by default for backwards compatibility.
+        Args: 
+            x,y,z,rot: all are scalars representing the pose, with `rot` as the
+                rotation about the z-axis (in _radians_).
+            intuitive: boolean, should be False except for when we are testing
+                poses, in which case we want to explicitly define a pose w.r.t.
+                the base_link for easier testing.
         """
         self.broadcast_poses([x,y,z], rot, intuitive)
         grasp_name = 'grasp_'+str(self.count)
@@ -115,7 +115,7 @@ class Gripper(object):
             b = tf.transformations.quaternion_from_euler(ai=0.0,aj=0.0,ak=1.57)
             base_rot = tf.transformations.quaternion_multiply(a,b)
             thread.start_new_thread(self.loop_broadcast,(norm_pose,base_rot,rot))
-        rospy.sleep(0.5)
+        rospy.sleep(1.0)
 
 
     def loop_broadcast(self, norm_pose, base_rot, rot_z):
@@ -140,14 +140,14 @@ class Gripper(object):
         """The intuitive way to test out poses.
 
         Specifically, now have position and rot_z be points with respect to the
-        odom frame, so I can directly interpret it rather than assuming the
-        original inputs to creating the poses were camera pixels.
+        base_link frame, so I can directly interpret it.
+
+        grasp_i_k = pose w.r.t base link
+        grasp_k   = pose w.r.t grasp_i_k w/some offset, for better positioning. 
         """
         count = np.copy(self.count)
-        quat0 = (1,0,0,0)
+        quat0 = (0,0,0,1) # Identity rotation, in (x,y,z,w) form, NOT (w,x,y,z)
         quat1 = tf.transformations.quaternion_from_euler(ai=0.0, aj=0.0, ak=rot_z)
-        print(position, rot_z, quat0, quat1, count)
-
         while True:
             self.br.sendTransform(position,
                                   quat0,

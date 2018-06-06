@@ -178,7 +178,8 @@ class Robot_Interface(object):
 
     def create_grasp_pose(self, x, y, z, rot, intuitive=False):
         """ If `intuitive=True` then x,y,z,rot interpreted wrt some link in the
-        world, e.g., 'odom' for the Fetch.
+        world, e.g., 'odom' for the Fetch. It's False by default to maintain
+        backwards compatibility w/Siemens-based code.
         """
         pose_name = self.gripper.create_grasp_pose(x, y, z, rot, intuitive)
         return pose_name
@@ -204,17 +205,10 @@ class Robot_Interface(object):
             z_offset: Scalar offset in z-direction, offset is wrt the pose
                 specified by `pose_name`.
         """
-        # TODO: I think this is how we implement this method, but I am not sure
-        # if the exact commands are correct and testing this is a bit cumbersome
-        # compared to other methods since we need a simulator set up and then to
-        # repeatedly create poses (use `create_grasp_pose`) and move to it. I
-        # think this is the right idea, though.
-
         # See: 
         #   http://wiki.ros.org/tf/Tutorials/Writing%20a%20tf%20listener%20%28Python%29
         #   https://answers.ros.org/question/256354/does-tftransformlistenerlookuptransform-return-quaternion-position-or-translation-and-rotation/
-        # Not sure about the ordering of the first two args, and the first
-        # argument name (I assume it's some 'reference' coordinate frame).
+        # First frame should be the reference frame, use `base_link`, not `odom`.
         point, quat = self.gripper.tl.lookupTransform('base_link', pose_name, rospy.Time(0))
         print("After looking up transform from {} to base_link.".format(pose_name))
         print("\tpoint: {}".format(point))

@@ -61,7 +61,8 @@ Once the setup is ready, just call `python [script_name]`.
 
 - `test_move_to_pose.py` for moving the end-effectors to certain locations.
 
-  **Status**: HAVE NOT TESTED
+  **Status**: passing for the simulator, need to test more on the physical robot
+  (but so far it's working, modulo some speed/safety issues)
 
 
 

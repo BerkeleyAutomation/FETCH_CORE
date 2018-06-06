@@ -99,13 +99,79 @@ the z-axis.
 
 The offset of -0.05m should be tuned appropriately for the application. Also, in
 the Siemens code we have, the `grasp_i_k` poses should have some non-identity
-rotation w.r.t. the `base_link`, so the visualization won't be as simple as it
-appears here.
+rotation w.r.t. the `base_link`, so the visualization won't be as interpretable
+as it appears here.
 
 
 ## Results for Moving to Poses
 
-TODO
+For the results here, I removed the offset of -0.05m, so `grasp_k` has the same
+origin (but not necessarily the same rotation) as `grasp_i_k`. So now we only
+visualize `grasp_k` poses. Using
+
+```
+pose = robot.create_grasp_pose(0.75, 0, 0.5, 0, intuitive=True)
+time.sleep(2)
+robot.move_to_pose(pose, z_offset=0.0)
+```
+
+in addition to the two poses we created earlier, we have this result:
+
+![](images/pose_3.png)
+
+and with the robot:
+
+![](images/pose_4.png)
+
+Good, the robot moved 3/4 meters in front, half a meter up. **WARNING**: if the
+target pose is too low (or the torso is too low), then the robot's arm WILL
+COLLIDE with its base. Be careful and test in simulation beforehand.
+
+Let's do the same, with a z-offset of 0.1 now:
+
+![](images/pose_5.png)
+
+Looks good! It went 0.1m higher.
+
+Now what if we change the orientation of `grasp_2`? Let's reset the z-offset to
+zero and set the pose to be:
+
+```
+pose = robot.create_grasp_pose(0.75, 0, 0.5, 90*DEG_TO_RAD, intuitive=True)
+```
+
+![](images/pose_6.png)
+
+Ah, planning failed for this one! :(  It also failed for -90 degrees. The reason
+is that the robot's wrist has to "turn" and the arm isn't long enough to get it
+by that angle. That kind of makes sense. Let's use -90 deg (since it's easier
+for the wrist to face that way) and move the target shorter to 0.5m, not 0.75m:
+
+```
+pose = robot.create_grasp_pose(0.5, 0, 0.5, -90*DEG_TO_RAD, intuitive=True)
+```
+
+Fortunately, it is able to reach there! And it should be clear what the rotation
+parameter now means, it rotates about the z-axis, faces in the x-axis.
+
+![](images/pose_7.png)
+
+I tested a few other variations of this, and the open end of the gripper always
+ends up "facing" the x-axis direction.
+
+For example you can make it point downwards if you define the pose correctly.
+Go inside `gripper.py` to adjust rotation in the x and y directions w.r.t. the
+base link as desired (in radians). Here, I made it point down at height 0.3:
+
+![](images/pose_8.png)
+
+The Fetch correctly did the motion planning to avoid collisions with the base.
+**It came *very* close to hitting the base a few times, though!** So test in
+simulation. 
+
+I could not get it lower than a height of 0.3, but I'm sure I could do it with
+some tuning of the positioning.
+
 
 
 # Base Rotation and Forward Movement

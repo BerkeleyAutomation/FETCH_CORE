@@ -38,8 +38,9 @@ class Robot_Interface(object):
         self.torso = Torso()
 
         # Tucked arm starting joint angle configuration
-        self.tucked_arm = [1.3200, 1.3999, -0.1998, 1.7199, 3.3468e-06, 1.6600,
-                -3.4037e-06]
+        self.names = ArmJoints().names()
+        self.tucked = [1.3200, 1.3999, -0.1998, 1.7199, 3.3468e-06, 1.6600, -3.4037e-06]
+        self.tucked_list = [(x,y) for (x,y) in zip(self.names, self.tucked)]
 
         # Initial (x,y,yaw) position of the robot wrt map origin. We keep this
         # fixed so that we can reset to this position as needed. The HSR's
@@ -49,7 +50,7 @@ class Robot_Interface(object):
         start = copy.deepcopy(self.base.odom.position)
         yaw = Base._yaw_from_quaternion(self.base.odom.orientation)
         self.start_pose = np.array([start.x, start.y, yaw])
-        self.turn_speed = 0.3
+        self.TURN_SPEED = 0.3
 
 
     def body_start_pose(self, start_height=0.03, end_height=0.03):
@@ -58,20 +59,20 @@ class Robot_Interface(object):
         The HSR uses `whole_body.move_to_go()` which initializes an appropriate
         posture so that the hand doesn't collide with movement. For the Fetch,
         we should probably make the torso extend, so the arms can extend more
-        easily without collisions. We should also probably keep the arm in the
-        tucked position to start. We'll need to experiment.
+        easily without collisions. Use `move_to_joint_goal` since that uses
+        motion planning. Do NOT directly set the joints without planning!!
         """
         self.torso.set_height(start_height)
-        self.arm.move_to_joints( self.arm_joints.from_list(self.tucked_arm) )
+        self.arm.move_to_joint_goal( self.tucked_list )
         self.torso.set_height(end_height)
 
 
     def head_start_pose(self):
         """Hard-coded starting pose for the robot's head.
         
-        TODO these values were taken from the HSR. The Fetch likely needs to use
-        a different pan and tilt. We'll need to experiment. Positive pan means
-        rotating counterclockwise when looking at robot from an aerial view.
+        These values are from the HSR. The Fetch needs a different pan and tilt.
+        Positive pan means rotating counterclockwise when looking at robot from
+        an aerial view.
         """
         self.head.pan_tilt(pan=1.5, tilt=-0.8)
 
@@ -123,7 +124,7 @@ class Robot_Interface(object):
         elif angle < -math.pi:
             angle += 2*math.pi 
 
-        self.base.turn(angular_distance=angle, speed=self.turn_speed)
+        self.base.turn(angular_distance=angle, speed=self.TURN_SPEED)
         self.base.go_forward(distance=dist, speed=0.2)
 
         # Back at the start x, y, but now need to consider the _second_ turn.
@@ -133,7 +134,7 @@ class Robot_Interface(object):
             final_angle -= 2*math.pi 
         elif final_angle < -math.pi:
             final_angle += 2*math.pi 
-        self.base.turn(angular_distance=final_angle, speed=self.turn_speed)
+        self.base.turn(angular_distance=final_angle, speed=self.TURN_SPEED)
 
 
     def get_img_data(self):

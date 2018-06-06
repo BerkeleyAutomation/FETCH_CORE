@@ -22,9 +22,9 @@ def debug_pose_location_rviz():
 
 def test_motion_planning():
     """It's helpful if only one pose is created to move to."""
-    pose = robot.create_grasp_pose(0.7, 0, 0.5, 0, intuitive=True)
+    pose = robot.create_grasp_pose(0.5, 0, 0.3, 0*DEG_TO_RAD, intuitive=True)
     time.sleep(2)
-    robot.move_to_pose(pose, z_offset=0) 
+    robot.move_to_pose(pose, z_offset=0.0) 
 
 
 def test_inverse_kinematics():
@@ -40,13 +40,17 @@ if __name__ == "__main__":
     rospy.loginfo("Initializing our robot (this may take about 10 seconds) ...")
     robot = Robot_Interface()
     rospy.loginfo("finished Initializing")
-    #robot.body_start_pose(start_height=0.15, end_height=0.15)
-    time.sleep(2) # w/out this, we get missing topics when creating poses
+
+    # Height matters. We go to `start_height`, tuck, then `end_height`.
+    robot.body_start_pose(start_height=0.20, end_height=0.20)
+
+    # w/out this, we get missing topics when creating poses
+    time.sleep(2) 
 
     # Now test! Comment out as desired.
 
     debug_pose_location_rviz()
-    #test_motion_planning()
+    test_motion_planning()
     #test_inverse_kinematics()
 
     rospy.spin()

@@ -154,7 +154,7 @@ class Gripper(object):
                                   rospy.Time.now(),
                                   'grasp_i_'+str(count),
                                   'base_link') # base_link moves w/robot, odom is fixed
-            self.br.sendTransform((0.0, 0.0, -0.05),
+            self.br.sendTransform((0.0, 0.0, 0.0),
                                   quat1,
                                   rospy.Time.now(),
                                   'grasp_'+str(count),

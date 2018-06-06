@@ -76,70 +76,87 @@ class Gripper(object):
         M_t = tf.transformations.translation_matrix(pose[0])
         M[:,3] = M_t[:,3]
 
-
         M_g = tf.transformations.quaternion_matrix(rot)
         M_g_t = tf.transformations.translation_matrix(norm_pose)
         M_g[:,3] = M_g_t[:,3]
 
         M_T = np.matmul(M,M_g)
-
         trans = tf.transformations.translation_from_matrix(M_T)
-
         quat = tf.transformations.quaternion_from_matrix(M_T)
-
         return trans,quat
 
-    def loop_broadcast(self,norm_pose,base_rot,rot_z):
+
+    def create_grasp_pose(self, x, y, z, rot, intuitive=False):
+        """Broadcast given pose and return its name.
+
+        Args: 
+            x,y,z,rot: all are scalars representing the pose, with `rot` as the
+                rotation about the z-axis (in _radians_).
+            intuitive: boolean, should be False except for when we are testing
+                poses, in which case we want to explicitly define a pose w.r.t.
+                the base_link for easier testing.
+        """
+        self.broadcast_poses([x,y,z], rot, intuitive)
+        grasp_name = 'grasp_'+str(self.count)
+        self.count += 1
+        return grasp_name
+
+
+    def broadcast_poses(self, position, rot, intuitive):
+        """TODO: figure out unit of depth image: if meters do nothing"""
+        if intuitive:
+            thread.start_new_thread(self.loop_broadcast_intuitive, (position,rot))
+        else:
+            td_points = self.pcm.projectPixelTo3dRay((position[0],position[1]))
+            norm_pose = np.array(td_points)
+            norm_pose = norm_pose/norm_pose[2]
+            norm_pose = norm_pose*(position[2])
+            a = tf.transformations.quaternion_from_euler(ai=-2.355,aj=-3.14,ak=0.0)
+            b = tf.transformations.quaternion_from_euler(ai=0.0,aj=0.0,ak=1.57)
+            base_rot = tf.transformations.quaternion_multiply(a,b)
+            thread.start_new_thread(self.loop_broadcast,(norm_pose,base_rot,rot))
+        rospy.sleep(1.0)
+
+
+    def loop_broadcast(self, norm_pose, base_rot, rot_z):
         norm_pose,rot = self.compute_trans_to_map(norm_pose,base_rot)
-        print "NORM POSE ",norm_pose
         count = np.copy(self.count)
+
         while True:
             self.br.sendTransform((norm_pose[0], norm_pose[1], norm_pose[2]),
-                    #tf.transformations.quaternion_from_euler(ai=0.0,aj=0.0,ak=0.0),
                     rot,
                     rospy.Time.now(),
                     'grasp_i_'+str(count),
-                    #'head_rgbd_sensor_link')
                     'odom')
-
             """TODO: figure out what to put as config"""
             self.br.sendTransform((0.0, 0.0, -0.05), # previously with z = config.gripper length
                     tf.transformations.quaternion_from_euler(ai=0.0,aj=0.0,ak=rot_z),
                     rospy.Time.now(),
                     'grasp_'+str(count),
-                    #'head_rgbd_sensor_link')
                     'grasp_i_'+str(count))
 
-    def broadcast_poses(self,position,rot):
-        """TODO: figure out unit of depth image: if meters do nothing"""
 
-        count = 0
+    def loop_broadcast_intuitive(self, position, rot_z):
+        """The intuitive way to test out poses.
 
-        td_points = self.pcm.projectPixelTo3dRay((position[0],position[1]))
-        print "DE PROJECTED POINTS ",td_points
-        norm_pose = np.array(td_points)
-        norm_pose = norm_pose/norm_pose[2]
-        norm_pose = norm_pose*(position[2])
-        # norm_pose = norm_pose*(cfg.MM_TO_M*position[2])
-        print "NORMALIZED POINTS ",norm_pose
+        Specifically, now have position and rot_z be points with respect to the
+        base_link frame, so I can directly interpret it.
 
-        #pose = np.array([td_points[0],td_points[1],0.001*num_pose[2]])
-        a = tf.transformations.quaternion_from_euler(ai=-2.355,aj=-3.14,ak=0.0)
-        b = tf.transformations.quaternion_from_euler(ai=0.0,aj=0.0,ak=1.57)
-
-        base_rot = tf.transformations.quaternion_multiply(a,b)
-
-        thread.start_new_thread(self.loop_broadcast,(norm_pose,base_rot,rot))
-
-        rospy.sleep(0.3)
-
-    def create_grasp_pose(self,x,y,z,rot):
-        """Broadcast given pose and return its name
-
-        Note: all x, y, z, rot are scalars (so rot =/= all Euler angles or
-        quaternions)
+        grasp_i_k = pose w.r.t base link
+        grasp_k   = pose w.r.t grasp_i_k w/some offset, for better positioning. 
         """
-        self.broadcast_poses([x,y,z],rot)
-        grasp_name = 'grasp_'+str(self.count)
-        self.count += 1
-        return grasp_name
+        count = np.copy(self.count)
+        quat0 = (0,0,0,1) # Identity rotation, in (x,y,z,w) form, NOT (w,x,y,z)
+        quat1 = tf.transformations.quaternion_from_euler(ai=0.0, aj=0.0, ak=rot_z)
+        while True:
+            self.br.sendTransform(position,
+                                  quat0,
+                                  rospy.Time.now(),
+                                  'grasp_i_'+str(count),
+                                  'base_link') # base_link moves w/robot, odom is fixed
+            self.br.sendTransform((0.0, 0.0, 0.0),
+                                  quat1,
+                                  rospy.Time.now(),
+                                  'grasp_'+str(count),
+                                  'grasp_i_'+str(count))
+

@@ -38,7 +38,13 @@ roslaunch fetch_moveit_config move_group.launch
 ```
 
 running in the background, for both the simulator and the real robot, before
-calling these scripts.
+calling these scripts. If running the simulator, then call something like this:
+
+```
+roslaunch fetch_gazebo simulation.launch
+```
+
+in a separate command line window.
 
 Once the setup is ready, just call `python [script_name]`.
 
@@ -55,4 +61,15 @@ Once the setup is ready, just call `python [script_name]`.
 
 - `test_move_to_pose.py` for moving the end-effectors to certain locations.
 
-  **Status**: HAVE NOT TESTED
+  **Status**: passing for the simulator, need to test more on the physical robot
+  (but so far it's working, modulo some speed/safety issues)
+
+
+
+## Other Reminders
+
+When the robot is turned ON, the area where it is turned ON is considered the
+`'odom'` link. So be careful if you set points with respect to that frame.
+
+For the physical robot, for BOTH MoveIt! and rviz you need to export the correct
+`ROS_MASTER_URI` variable.

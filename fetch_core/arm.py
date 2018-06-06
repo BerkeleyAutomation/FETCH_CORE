@@ -115,7 +115,7 @@ class Arm(object):
     def move_to_joint_goal(self,
                            joints,
                            allowed_planning_time=10.0,
-                           execution_timeout=rospy.Duration(15.0),
+                           execution_timeout=15.0,
                            group_name='arm',
                            num_planning_attempts=1,
                            plan_only=False,

@@ -1,22 +1,185 @@
-# Test Examples
-
 Examples to test out the Fetch. See repository README for status of which tests
 are passing, and usage.
 
 
 
-## Moving to Poses
+# Moving to Poses
 
-**TODO TESTING IN PROGRESS**
+Here is the pipeline **when testing using the simulator**:
 
-This is the most important kind of test for us so please hurry up ...
+Run `roslaunch fetch_gazebo simulation.launch` in a command line.
+
+In another window: `roslaunch fetch_moveit_config move_group.launch`.
+
+In *another* window: `rosrun rviz rviz`.
+
+Finally, in a fourth window, run `python test_move_to_pose.py`.
+
+For the physical robot, it's similar except you don't need to run the Gazebo
+simulator. You need to connect with the robot for rviz to display it, though.
+
+A few pointers:
+
+- In `robot_interface.py` we have `move_to_pose()` which will take in a pose. In
+  application code, this given pose will be something that results from a
+  complicated pipeline which translates from camera coordinates to position and
+  orientation.
+  
+- If we just want to test that the robot is going somewhere, then it's easiest
+  when we can define a pose with respect to the `base_link` of the robot (which
+  moves with the robot, unlike `odom`). That way we can just tell the
+  end-effector to be x meters in front of it, y meters to the right/left
+  (depending on perspective), etc.
+
+- To make the pose, simply call `create_grasp_pose()` with `intuitive=True`.
+
+- To accommodate the above, in `gripper.py`, instead of assuming the pose came
+  from a camera originally, we have an "intuitive" setting which lets us define
+  a pose with respect to the base link. Either way, a new thread is started
+  which creates the pose.
+
+- We left `arm.py` unchanged. We are just calling its `move_to_pose` and that
+  uses MoveIt.
 
 
-## Base Rotation and Forward Movement
+Some stuff to investigate:
+
+- How to control the speed to make it slower.
+
+- How to figure out if there will be collisions with the base, etc.
+
+- How to avoid locks and issues with multiple frames.
+
+## Results for Creating Poses
+
+Here's what we get after running the test with these critical lines:
+
+```
+def debug_pose_location_rviz():
+    pose0 = robot.create_grasp_pose(1, 0, 0, 0, intuitive=True)
+    time.sleep(2)
+    pose1 = robot.create_grasp_pose(1, 0, 0, 90*DEG_TO_RAD, intuitive=True)
+    time.sleep(2)
+```
+
+TL;DR: create two poses in front of the robot by x=1 meter. The first pose has
+the identity rotation, and the second pose should be rotated 90 degrees about
+the z-axis. Each of these calls will create *two* frames: `grasp_i_k` and then
+`grasp_k`, where `k` is an index starting at 0 and incrementing sequentially.
+
+By default, `grasp_i_k` is only defined with a position offset w.r.t.
+`base_link`, with the identity rotation. The rotation that we pass in
+`robot.create_grasp_pose()` is for the `grasp_k` pose and that is rotation
+w.r.t. `grasp_i_k`.
+
+Here's what we get:
+
+![](images/pose_0.png)
+
+Let's remove the robot model. Now we can see the `base_link`:
+
+![](images/pose_1.png)
+
+Above, I've highlighted `grasp_i_0` and `grasp_0`. The `grasp_i_0` frame is at
+the expected spot,  1 meter in front of the robot (since that's the x-axis
+direction) and with no rotation.
+
+The `grasp_0` is -0.05m above (hence, 0.05m *below*), because of some hard-coded
+decisions in `Gripper.loop_broadcast_intuitive()`; I think this is supposed to
+represent an offset to take into account the robot's gripper when lowering or
+raising it. This is something we'll need to tune.
+
+Now let's highlight `grasp_i_1` and `grasp_1`:
+
+![](images/pose_2.png)
+
+As expected, `grasp_i_1` coincides with `grasp_i_0` but `grasp_1` not only has
+the usual -0.05m offset in the z-direction, but is also rotated 90 degrees about
+the z-axis.
+
+The offset of -0.05m should be tuned appropriately for the application. Also, in
+the Siemens code we have, the `grasp_i_k` poses should have some non-identity
+rotation w.r.t. the `base_link`, so the visualization won't be as interpretable
+as it appears here.
+
+
+## Results for Moving to Poses
+
+For the results here, I removed the offset of -0.05m, so `grasp_k` has the same
+origin (but not necessarily the same rotation) as `grasp_i_k`. So now we only
+visualize `grasp_k` poses. Using
+
+```
+pose = robot.create_grasp_pose(0.75, 0, 0.5, 0, intuitive=True)
+time.sleep(2)
+robot.move_to_pose(pose, z_offset=0.0)
+```
+
+in addition to the two poses we created earlier, we have this result:
+
+![](images/pose_3.png)
+
+and with the robot:
+
+![](images/pose_4.png)
+
+Good, the robot moved 3/4 meters in front, half a meter up. **WARNING**: if the
+target pose is too low (or the torso is too low), then the robot's arm MAY 
+COLLIDE with its base. I assume motion planning should take care of this, but
+I'm not 100% sure. Be careful and test in simulation beforehand.
+
+Let's do the same, with a z-offset of 0.1 now:
+
+![](images/pose_5.png)
+
+Looks good! It went 0.1m higher.
+
+Now what if we change the orientation of `grasp_2`? Let's reset the z-offset to
+zero and set the pose to be:
+
+```
+pose = robot.create_grasp_pose(0.75, 0, 0.5, 90*DEG_TO_RAD, intuitive=True)
+```
+
+![](images/pose_6.png)
+
+Ah, planning failed for this one! :(  It also failed for -90 degrees. The reason
+is that the robot's wrist has to "turn" and the arm isn't long enough to get it
+by that angle. That kind of makes sense. Let's use -90 deg (since it's easier
+for the wrist to face that way) and move the target shorter to 0.5m, not 0.75m:
+
+```
+pose = robot.create_grasp_pose(0.5, 0, 0.5, -90*DEG_TO_RAD, intuitive=True)
+```
+
+Fortunately, it is able to reach there! And it should be clear what the rotation
+parameter now means, it rotates about the z-axis, faces in the x-axis.
+
+![](images/pose_7.png)
+
+I tested a few other variations of this, and the open end of the gripper always
+ends up "facing" the x-axis direction.
+
+For example you can make it point downwards if you define the pose correctly.
+Go inside `gripper.py` to adjust rotation in the x and y directions w.r.t. the
+base link as desired (in radians). Here, I made it point down at height 0.3:
+
+![](images/pose_8.png)
+
+The Fetch correctly did the motion planning to avoid collisions with the base.
+**It came *very* close to hitting the base a few times, though!** So test in
+simulation. 
+
+I could not get it lower than a height of 0.3, but I'm sure I could do it with
+some tuning of the positioning.
+
+
+
+# Base Rotation and Forward Movement
 
 From running `python test_base_and_position.py`:
 
-### Rotation
+## Rotation
 
 Testing the base *rotation* movement, where I make the robot turn X degrees,
 then -X degrees, and try to see if it comes back to the target.
@@ -50,7 +213,7 @@ clear that the rotation axis isn't at the true center since the robot
 repeatedly moves _backwards_ despite rotating X and then -X degrees. All
 this is with the torso lowered to 0.03m to be safe.
 
-### Forward Movement
+## Forward Movement
 
 Testing the base *forward* movement with `test_forward` method for moving the
 robot 0.1 meters (10 centimeters) each time:
@@ -152,3 +315,7 @@ speed for us.
 Of course this assumes that the distance returned from the odometry base is
 actually accurate (that's the thing that lets us detect `start_pose` and
 `pose`).
+
+
+
+[1]:http://mirror.umd.edu/roswiki/doc/diamondback/api/tf/html/python/tf_python.html

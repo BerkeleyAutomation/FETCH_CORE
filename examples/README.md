@@ -124,8 +124,9 @@ and with the robot:
 ![](images/pose_4.png)
 
 Good, the robot moved 3/4 meters in front, half a meter up. **WARNING**: if the
-target pose is too low (or the torso is too low), then the robot's arm WILL
-COLLIDE with its base. Be careful and test in simulation beforehand.
+target pose is too low (or the torso is too low), then the robot's arm MAY 
+COLLIDE with its base. I assume motion planning should take care of this, but
+I'm not 100% sure. Be careful and test in simulation beforehand.
 
 Let's do the same, with a z-offset of 0.1 now:
 

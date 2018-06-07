@@ -2,6 +2,8 @@
 
 Goal here is to send the robot end-effector to various locations in the task
 space and more generally understanding the poses and assigning stuff to the arm.
+
+Note the velocity factor that we've added here, for speed.
 """
 from fetch_core.robot_interface import Robot_Interface
 from geometry_msgs.msg import PoseStamped
@@ -22,9 +24,9 @@ def debug_pose_location_rviz():
 
 def test_motion_planning():
     """It's helpful if only one pose is created to move to."""
-    pose = robot.create_grasp_pose(0.5, 0, 0.3, 0*DEG_TO_RAD, intuitive=True)
+    pose = robot.create_grasp_pose(0.6, 0, 0.7, 0*DEG_TO_RAD, intuitive=True)
     time.sleep(2)
-    robot.move_to_pose(pose, z_offset=0.0) 
+    robot.move_to_pose(pose_name=pose, z_offset=0.0, velocity_factor=0.5) 
 
 
 def test_inverse_kinematics():
@@ -42,14 +44,14 @@ if __name__ == "__main__":
     rospy.loginfo("finished Initializing")
 
     # Height matters. We go to `start_height`, tuck, then `end_height`.
-    robot.body_start_pose(start_height=0.20, end_height=0.20)
+    robot.body_start_pose(start_height=0.20, end_height=0.20, velocity_factor=0.5)
 
     # w/out this, we get missing topics when creating poses
     time.sleep(2) 
 
     # Now test! Comment out as desired.
 
-    debug_pose_location_rviz()
+    #debug_pose_location_rviz()
     test_motion_planning()
     #test_inverse_kinematics()
 

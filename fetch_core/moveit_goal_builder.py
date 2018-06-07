@@ -104,7 +104,7 @@ class MoveItGoalBuilder(object):
         self._orientation_constraints.append(copy.deepcopy(o_constraint))
         self.planner_id = 'RRTConnectkConfigDefault'
 
-    def build(self, tf_timeout=rospy.Duration(5.0)):
+    def build(self, tf_timeout=rospy.Duration(5.0), velocity_factor=None):
         """Builds the goal message.
 
         To set a pose or joint goal, call set_pose_goal or set_joint_goal
@@ -189,7 +189,11 @@ class MoveItGoalBuilder(object):
 
         # Set scaling factors
         goal.request.max_acceleration_scaling_factor = self.max_acceleration_scaling_factor
-        goal.request.max_velocity_scaling_factor = self.max_velocity_scaling_factor
+        if velocity_factor is not None:
+            assert 0.0 <= velocity_factor <= 1.0
+            goal.request.max_velocity_scaling_factor = velocity_factor
+        else:
+            goal.request.max_velocity_scaling_factor = self.max_velocity_scaling_factor
 
         # Set planning scene diff
         goal.planning_options.planning_scene_diff = copy.deepcopy(

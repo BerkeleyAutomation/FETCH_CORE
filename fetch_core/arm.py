@@ -121,7 +121,8 @@ class Arm(object):
                            plan_only=False,
                            replan=False,
                            replan_attempts=5,
-                           tolerance=0.01):
+                           tolerance=0.01,
+                           velocity_factor=None):
         """Moves the end-effector to a pose, using motion planning.
 
         Args:
@@ -156,7 +157,7 @@ class Arm(object):
         goal_builder.replan = replan
         goal_builder.replan_attempts = replan_attempts
         goal_builder.tolerance = tolerance
-        goal = goal_builder.build()
+        goal = goal_builder.build(velocity_factor=velocity_factor)
         if goal is not None:
             self._move_group_client.send_goal(goal)
             success = self._move_group_client.wait_for_result(
@@ -183,7 +184,8 @@ class Arm(object):
                      plan_only=False,
                      replan=False,
                      replan_attempts=5,
-                     tolerance=0.01):
+                     tolerance=0.01,
+                     velocity_factor=None):
         """Moves the end-effector to a pose, using motion planning.
 
         Args:
@@ -221,7 +223,7 @@ class Arm(object):
         goal_builder.replan = replan
         goal_builder.replan_attempts = replan_attempts
         goal_builder.tolerance = tolerance
-        goal = goal_builder.build()
+        goal = goal_builder.build(velocity_factor=velocity_factor)
         if goal is not None:
             self._move_group_client.send_goal(goal)
             self._move_group_client.wait_for_result(

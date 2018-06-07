@@ -53,7 +53,7 @@ class Robot_Interface(object):
         self.TURN_SPEED = 0.3
 
 
-    def body_start_pose(self, start_height=0.03, end_height=0.03):
+    def body_start_pose(self, start_height=0.03, end_height=0.03, velocity_factor=None):
         """Sets the robot's body to some initial configuration.
         
         The HSR uses `whole_body.move_to_go()` which initializes an appropriate
@@ -63,7 +63,7 @@ class Robot_Interface(object):
         motion planning. Do NOT directly set the joints without planning!!
         """
         self.torso.set_height(start_height)
-        self.arm.move_to_joint_goal( self.tucked_list )
+        self.arm.move_to_joint_goal(self.tucked_list, velocity_factor=velocity_factor)
         self.torso.set_height(end_height)
 
 
@@ -194,7 +194,7 @@ class Robot_Interface(object):
         self.gripper.close()
 
 
-    def move_to_pose(self, pose_name, z_offset):
+    def move_to_pose(self, pose_name, z_offset, velocity_factor=None):
         """Moves to a pose.
  
         In the HSR, moved the `hand_palm_link` to the frame named `pose_name` at
@@ -205,15 +205,15 @@ class Robot_Interface(object):
             pose_name: A string name for the pose to go 
             z_offset: Scalar offset in z-direction, offset is wrt the pose
                 specified by `pose_name`.
+            velocity_factor: controls the speed, closer to 0 means slower,
+                closer to 1 means faster. (If 0.0, then it turns into 1.0 for
+                some reason.) Values greater than 1.0 are cut to 1.0.
         """
         # See: 
         #   http://wiki.ros.org/tf/Tutorials/Writing%20a%20tf%20listener%20%28Python%29
         #   https://answers.ros.org/question/256354/does-tftransformlistenerlookuptransform-return-quaternion-position-or-translation-and-rotation/
         # First frame should be the reference frame, use `base_link`, not `odom`.
         point, quat = self.gripper.tl.lookupTransform('base_link', pose_name, rospy.Time(0))
-        print("After looking up transform from {} to base_link.".format(pose_name))
-        print("\tpoint: {}".format(point))
-        print("\tquat: {}".format(quat))
         z_point = point[2] + z_offset
 
         # See:
@@ -227,7 +227,7 @@ class Robot_Interface(object):
         )
 
         # See `arm.py` written by Justin Huang
-        error = self.arm.move_to_pose(pose_stamped=ps)
+        error = self.arm.move_to_pose(pose_stamped=ps, velocity_factor=velocity_factor)
         if error is not None:
             rospy.logerr(error)
 

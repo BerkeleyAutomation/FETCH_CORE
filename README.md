@@ -1,11 +1,18 @@
 # FETCH_CORE
 
+
 ## Overview
 
 This is our interface for the Fetch robot. Please import `fetch_core` in your
 code if using the Fetch, and go from there.
 
-Troubleshooting:
+## TODOs
+
+- Figure out how to get the wrist to be rotated correctly. Right now the rviz vs
+  real robot are off by about 90 degrees for some reason.
+
+
+## Troubleshooting
 
 - Make sure you are on the AUTOLAB WiFi with `ROS_MASTER_URI` set up
   appropriately (e.g., in `~/.bashrc`).
@@ -61,8 +68,9 @@ Once the setup is ready, just call `python [script_name]`.
 
 - `test_move_to_pose.py` for moving the end-effectors to certain locations.
 
-  **Status**: passing for the simulator, need to test more on the physical robot
-  (but so far it's working, modulo some speed/safety issues)
+  **Status**: passing for the simulator, need to test more on the physical
+  robot, but it's also working there. It helps to have the velocity scaling
+  factor.
 
 
 

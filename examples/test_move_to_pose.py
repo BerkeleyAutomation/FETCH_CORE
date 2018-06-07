@@ -12,6 +12,7 @@ import numpy as np
 import rospy
 DEG_TO_RAD = np.pi / 180
 RAD_TO_DEG = 180 / np.pi
+VEL = 0.20 # control speed of the robot
 
 
 def debug_pose_location_rviz():
@@ -26,7 +27,7 @@ def test_motion_planning():
     """It's helpful if only one pose is created to move to."""
     pose = robot.create_grasp_pose(0.6, 0, 0.7, 0*DEG_TO_RAD, intuitive=True)
     time.sleep(2)
-    robot.move_to_pose(pose_name=pose, z_offset=0.0, velocity_factor=0.5) 
+    robot.move_to_pose(pose_name=pose, z_offset=0.0, velocity_factor=VEL) 
 
 
 def test_inverse_kinematics():
@@ -44,7 +45,7 @@ if __name__ == "__main__":
     rospy.loginfo("finished Initializing")
 
     # Height matters. We go to `start_height`, tuck, then `end_height`.
-    robot.body_start_pose(start_height=0.20, end_height=0.20, velocity_factor=0.5)
+    robot.body_start_pose(start_height=0.20, end_height=0.20, velocity_factor=VEL)
 
     # w/out this, we get missing topics when creating poses
     time.sleep(2) 

@@ -232,9 +232,32 @@ class Robot_Interface(object):
             rospy.logerr(error)
 
 
-    def find_ar(self, ar_number):
-        """ TODO """
-        raise NotImplementedError()
+    def find_ar(self, ar_number, velocity_factor=None):
+        try:
+            ar_name = 'ar_marker/' + str(ar_number)
+
+            # HSR code, with two hard-coded offsets?
+            #self.whole_body.move_end_effector_pose(geometry.pose(y=0.08, z=-0.3), ar_name)
+
+            # Fetch 'translation'. Note the `ar_name` for pose name.
+            point, quat = self.gripper.tl.lookupTransform('base_link', ar_name, rospy.Time(0))
+            y_point = point[1] + 0.08
+            z_point = point[2] - 0.3
+
+            ps = PoseStamped()
+            ps.header.frame_id = 'base_link'
+            ps.pose = Pose(
+                    Point(point[0], y_point, z_point), 
+                    Quaternion(quat[0], quat[1], quat[2], quat[3])
+            )
+
+            error = self.arm.move_to_pose(pose_stamped=ps, velocity_factor=velocity_factor)
+            if error is not None:
+                rospy.logerr(error)
+
+            return True
+        except:
+            return False
 
 
     def pan_head(self, tilt):

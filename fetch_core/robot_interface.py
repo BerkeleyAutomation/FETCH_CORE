@@ -16,6 +16,7 @@ from camera import RGBD
 from head import Head
 from gripper import Gripper
 from torso import Torso
+from reader import JointStateReader
 
 
 class Robot_Interface(object):
@@ -36,10 +37,11 @@ class Robot_Interface(object):
         self.head = Head()
         self.gripper = Gripper(self.camera)
         self.torso = Torso()
+        self.joint_reader = JointStateReader()
 
         # Tucked arm starting joint angle configuration
         self.names = ArmJoints().names()
-        self.tucked = [1.3200, 1.3999, -0.1998, 1.7199, 3.3468e-06, 1.6600, -3.4037e-06]
+        self.tucked = [1.3200, 1.3999, -0.1998, 1.7199, 0.0, 1.6600, 0.0]
         self.tucked_list = [(x,y) for (x,y) in zip(self.names, self.tucked)]
 
         # Initial (x,y,yaw) position of the robot wrt map origin. We keep this

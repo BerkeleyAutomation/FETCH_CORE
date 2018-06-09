@@ -6,10 +6,11 @@
 This is our interface for the Fetch robot. Please import `fetch_core` in your
 code if using the Fetch, and go from there.
 
-## TODOs
+The `fetch_core/robot_interface.py` shows expected usage by importing a class
+which contains the various aspects of interest (camera image, arm movement,
+etc).
 
-- Figure out how to get the wrist to be rotated correctly. Right now the rviz vs
-  real robot are off by about 90 degrees for some reason.
+See the `examples/` directory for usage and pictures.
 
 
 ## Troubleshooting
@@ -28,6 +29,12 @@ code if using the Fetch, and go from there.
 
 - If the Joystick (for teleoperation) won't connect to the Fetch, use the USB
   cable to connect it with the Fetch head.
+
+- When the robot is turned ON, the area where it is turned ON is considered the
+  `'odom'` link. So be careful if you set points with respect to that frame.
+
+- For the physical robot, for BOTH MoveIt! and rviz you need to export the
+  correct `ROS_MASTER_URI` variable.
 
 ## Tests
 
@@ -70,14 +77,6 @@ Once the setup is ready, just call `python [script_name]`.
 
   **Status**: passing for the simulator, need to test more on the physical
   robot, but it's also working there. It helps to have the velocity scaling
-  factor.
-
-
-
-## Other Reminders
-
-When the robot is turned ON, the area where it is turned ON is considered the
-`'odom'` link. So be careful if you set points with respect to that frame.
-
-For the physical robot, for BOTH MoveIt! and rviz you need to export the correct
-`ROS_MASTER_URI` variable.
+  factor. Sometimes, though, there will be minor collisions between the arm and
+  the base, which we should investigate in more detail. There is also an issue
+  with wrist rotation.

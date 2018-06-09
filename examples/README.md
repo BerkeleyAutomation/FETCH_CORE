@@ -1,6 +1,37 @@
 Examples to test out the Fetch. See repository README for status of which tests
-are passing, and usage.
+are passing, and usage. See below for images.
 
+
+# Wrist Rotation
+
+Using `python test_wrist_roll.py`, we noticed something odd, which we need to
+consider for real-world grasping. When we make the robot go to a pose, its wrist
+will be "open" and facing the direction of the positive x-axis. However, the
+rotation of the wrist roll joint is different by 90 degrees for rviz versus the
+physical robot. Let's have the robot go to a grasp point and then adjust its
+angle so the `wrist roll` joint is 0 radians.
+
+Here's rviz:
+
+![](images/wrist_1.png)
+
+Here's what the real-world looks like:
+
+![](images/wrist_2.png)
+
+This holds for different rotation angles we tried (45 degrees, etc.). For the
+physical Fetch robot, we conclude that:
+
+- **Real world**: the plane formed by the long end of the `gripper link` is
+  *perpendicular* (or, doesn't coincide) with the long end of the `wrist flex link`.
+- **Rviz**: the plane formed by the long end of the `gripper link` is parallel
+  (or, coincides) with the long end of the `wrist flex link`.
+
+In Gazebo there is no such discrepancy.
+
+I'm not sure how to fix this now because all we are doing is telling the Fetch
+to change the last joint (the wrist roll one) into 0. We will just need to take
+this into account.
 
 
 # Moving to Poses

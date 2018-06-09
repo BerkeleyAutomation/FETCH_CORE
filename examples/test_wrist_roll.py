@@ -13,37 +13,64 @@ RAD_TO_DEG = 180 / np.pi
 
 
 # control speed of the robot
-VEL = 1.00 
+VEL = 0.4 
 
 if __name__ == "__main__":
     rospy.loginfo("Initializing our robot (this may take about 10 seconds) ...")
     robot = Robot_Interface()
     rospy.loginfo("finished Initializing")
+    names = robot.arm_joints.names()
 
     # For now just explicitly assign height and the tucked position
-    robot.torso.set_height(0.2)
-    names = robot.arm_joints.names()
-    joints = [1.3200, 1.3999, -0.1998, 1.7199, 0.0, 1.6600, 0.0]
-    joints_list = [(x,y) for (x,y) in zip(names,joints)]
-    robot.arm.move_to_joint_goal(joints_list, velocity_factor=VEL)
+    # (Comment out these four lines if you've already got it in some good pose.)
+
+    ## robot.torso.set_height(0.2)
+    ## joints = [1.3200, 1.3999, -0.1998, 1.7199, 0.0, 1.6600, 0.0]
+    ## joints_list = [(x,y) for (x,y) in zip(names,joints)]
+    ## robot.arm.move_to_joint_goal(joints_list, velocity_factor=VEL)
+
+    # Let's print out the tucked position just to verify, using joint reader
     rospy.sleep(2)
-
-    # Let's print out the ticked position just to verify, using joint reader
     joints = robot.joint_reader.get_joints(names=names)
-    print("here are our joints from the joint reader:\n{}\n".format(joints))
+    print("here are our joints from the joint reader:\n{} (last={:.2f})\n".format(joints, joints[-1]*RAD_TO_DEG))
 
-    # Create a pose to go to
-    pose = robot.create_grasp_pose(0.6, 0, 0.7, 0*DEG_TO_RAD, intuitive=True)
+    # Create a pose to go to, at zero degrees
+    pose = robot.create_grasp_pose(0.7, 0, 0.7, 0*DEG_TO_RAD, intuitive=True)
     time.sleep(2)
     robot.move_to_pose(pose_name=pose, z_offset=0.0, velocity_factor=VEL) 
     time.sleep(2)
-    print("joints from the joint reader:\n{}\n".format(joints))
+    joints = robot.joint_reader.get_joints(names=names)
+    print("here are our joints from the joint reader:\n{} (last={:.2f})\n".format(joints, joints[-1]*RAD_TO_DEG))
+    rospy.sleep(3)
 
-    # Now with the gripper at a pose, let's rotate the wrist roll. (If you do it
-    # in the tucked position, the arm can block wrist rotation.)
+    # Rotate gripper roll, assuming the gripper is at a pose where this will work well (i.e. not tucked position)
 
-    joints[6] = 30*DEG_TO_RAD
+    joints[6] = 0*DEG_TO_RAD
     joints_list = [(x,y) for (x,y) in zip(names,joints)]
     robot.arm.move_to_joint_goal(joints_list, velocity_factor=VEL)
+    joints = robot.joint_reader.get_joints(names=names)
+    print("(went to 0 deg) here are our joints from the joint reader:\n{} (last={:.2f})\n".format(joints, joints[-1]*RAD_TO_DEG))
+    rospy.sleep(3)
+
+    ## joints[6] = 45*DEG_TO_RAD
+    ## joints_list = [(x,y) for (x,y) in zip(names,joints)]
+    ## robot.arm.move_to_joint_goal(joints_list, velocity_factor=VEL)
+    ## joints = robot.joint_reader.get_joints(names=names)
+    ## print("(went to 45 deg) here are our joints from the joint reader:\n{} (last={:.2f})\n".format(joints, joints[-1]*RAD_TO_DEG))
+    ## rospy.sleep(3)
+
+    ## joints[6] = 90*DEG_TO_RAD
+    ## joints_list = [(x,y) for (x,y) in zip(names,joints)]
+    ## robot.arm.move_to_joint_goal(joints_list, velocity_factor=VEL)
+    ## joints = robot.joint_reader.get_joints(names=names)
+    ## print("(went to 90 deg) here are our joints from the joint reader:\n{} (last={:.2f})\n".format(joints, joints[-1]*RAD_TO_DEG))
+    ## rospy.sleep(3)
+
+    ## joints[6] = 0*DEG_TO_RAD
+    ## joints_list = [(x,y) for (x,y) in zip(names,joints)]
+    ## robot.arm.move_to_joint_goal(joints_list, velocity_factor=VEL)
+    ## joints = robot.joint_reader.get_joints(names=names)
+    ## print("(went to 0 deg) here are our joints from the joint reader:\n{} (last={:.2f})\n".format(joints, joints[-1]*RAD_TO_DEG))
+    ## rospy.sleep(3)
 
     rospy.spin()

@@ -22,12 +22,16 @@ Here's what the real-world looks like:
 This holds for different rotation angles we tried (45 degrees, etc.). For the
 physical Fetch robot, we conclude that:
 
-- **Real world**: the plane formed by the long end of the `gripper link` is
-  *perpendicular* (or, doesn't coincide) with the long end of the `wrist flex link`.
-- **Rviz**: the plane formed by the long end of the `gripper link` is parallel
-  (or, coincides) with the long end of the `wrist flex link`.
+- **Real world**: *at zero degrees*, the plane formed by the long end of the
+  `gripper link` is *perpendicular* (or, doesn't coincide) with the long end of
+  the `wrist flex link`.
+- **Rviz**: *at zero degrees*, the plane formed by the long end of the `gripper
+  link` is parallel (or, coincides) with the long end of the `wrist flex link`.
 
-In Gazebo there is no such discrepancy.
+And then other degrees offset this and have the expected impact in the real
+robot or rviz.
+
+In Gazebo+rviz there is no such discrepancy, it's only in real+rviz.
 
 I'm not sure how to fix this now because all we are doing is telling the Fetch
 to change the last joint (the wrist roll one) into 0. We will just need to take

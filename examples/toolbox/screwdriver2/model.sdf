@@ -1,0 +1,54 @@
+<sdf version='1.4'>
+  <model name='screwdriver2'>
+    <link name='body'>
+      <visual name='visual'>
+        <geometry>
+          <mesh>
+            <uri>/home/daniel/FETCH_CORE/examples/toolbox/screwdriver2.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name='screwdriver2'>
+        <pose>0 0 -0.01098296 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0305308 0.02777236 0.26202132</size>
+          </box>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>50</mu>
+              <mu2>100</mu2>
+            </ode>
+          </friction>
+          <bounce/>
+          <contact>
+            <ode/>
+          </contact>
+        </surface>
+        <max_contacts>10</max_contacts>
+      </collision>
+      <velocity_decay>
+        <linear>0</linear>
+        <angular>0</angular>
+      </velocity_decay>
+      <self_collide>0</self_collide>
+      <inertial>
+        <inertia>
+          <ixx>7.6e-07</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1.052e-05</iyy>
+          <iyz>0</iyz>
+          <izz>1.107e-05</izz>
+        </inertia>
+        <mass>0.0125</mass>
+      </inertial>
+      <kinematic>0</kinematic>
+      <gravity>1</gravity>
+    </link>
+    <pose>-1 0.519198 0 0 -0 0</pose>
+    <static>0</static>
+    </model>
+</sdf>

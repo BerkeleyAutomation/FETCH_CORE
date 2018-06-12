@@ -1,19 +1,20 @@
 <sdf version='1.4'>
-  <model name='screwdriver1'>
+  <model name='basket'>
       <link name='body'>
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>/home/daniel/FETCH_CORE/examples/screwdriver1/screwdriver1.dae</uri>
+              <uri>model://basket/basket.dae</uri>
             </mesh>
           </geometry>
         </visual>
-        <collision name='screwdriver1'>
-          <pose>0.08350504 0.09999726 0.01040638 0 -0 0</pose>
+        <collision name='basket'>
+          <pose>0 0.0485 0 1.5708 -0 0</pose>
           <geometry>
-            <box>
-              <size>0.02544064 0.19999452 0.02406904</size>
-            </box>
+            <cylinder>
+              <radius>0.13</radius>
+              <length>0.097</length>
+            </cylinder>
           </geometry>
           <surface>
             <friction>
@@ -36,14 +37,14 @@
         <self_collide>0</self_collide>
         <inertial>
           <inertia>
-            <ixx>7.6e-07</ixx>
+            <ixx>1</ixx>
             <ixy>0</ixy>
             <ixz>0</ixz>
-            <iyy>1.052e-05</iyy>
+            <iyy>1</iyy>
             <iyz>0</iyz>
-            <izz>1.107e-05</izz>
+            <izz>1</izz>
           </inertia>
-          <mass>0.0125</mass>
+          <mass>1</mass>
         </inertial>
         <kinematic>0</kinematic>
         <gravity>1</gravity>

@@ -10,10 +10,11 @@ LIMIT = {'x':(-0.3, 0.5), 'y':(0.6, 1.4), 'rad':(0, 3.14)}
 # QUATER = tf.transformations.quaternion_from_euler(0,0,0)
 # ORIENT = Quaternion(QUATER[0], QUATER[1], QUATER[2], QUATER[3])
 
-#MODEL_PATH = "/home/daniel/simulator/siemens_challenge/sim_world/toolbox/"
-MODEL_PATH = "/home/daniel/FETCH_CORE/examples/"
-MODEL_LIST = ["screwdriver1"]
-MODEL_TYPE = ["screwdriver"]
+# We can't use scrap1 (due to gazebo7 issue) and tape3 (due to `.obj` issue),
+# which is in the siemens code. Also Zisu didn't use screwdriver4.
+MODEL_PATH = "/home/daniel/FETCH_CORE/examples/toolbox/"
+MODEL_LIST = ["screwdriver1", "screwdriver2", "screwdriver3", "tape2", "tube1"]
+MODEL_TYPE = ["screwdriver", "tape", "tube"]
 
 
 def setup_delete_spawn_service():
@@ -31,6 +32,7 @@ def setup_delete_spawn_service():
 
     return delete_model, spawn_model, object_monitor
 
+
 def get_object_list(object_monitor):
     lst = []
     for name in object_monitor().model_names:
@@ -45,14 +47,17 @@ def get_object_list(object_monitor):
             lst.append(name)
     return lst
 
+
 def delete_object(name, delete_model):
     delete_model(name)
+
 
 def clean_floor(delete_model, object_monitor):
     object_lst = get_object_list(object_monitor)
     for obj in object_lst:
         delete_object(obj, delete_model)
         rospy.sleep(0.5)
+
 
 def spawn_from_uniform(n, spawn_model):
     for i in range(n):
@@ -78,6 +83,7 @@ def spawn_from_uniform(n, spawn_model):
         spawn_model(object_name, object_xml, "", object_pose, "world")
         rospy.sleep(0.5)
 
+
 def spawn_from_gaussian(n, spawn_model):
     for i in range(n):
         # item
@@ -102,12 +108,11 @@ def spawn_from_gaussian(n, spawn_model):
         spawn_model(object_name, object_xml, "", object_pose, "world")
         rospy.sleep(0.5)
 
+
 if __name__ == '__main__':
     delete_model, spawn_model, object_monitor = setup_delete_spawn_service()
-
     print(get_object_list(object_monitor))
-
     # spawn_from_uniform(10, spawn_model)
     clean_floor(delete_model, object_monitor)
-    # spawn_from_gaussian(10)
+    spawn_from_gaussian(20, spawn_model)
 

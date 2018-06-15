@@ -2,6 +2,25 @@ Examples to test out the Fetch. See repository README for status of which tests
 are passing, and usage. See below for images.
 
 
+# How to Move Downwards with the Skeleton Code
+
+To make the robot move downwards with `test_skeleton.py` we can create a pose at
+the desired target, and it automatically creates a new pose with negative
+x-offset w.r.t. that pose. It's negative x since the robot's open gripper always
+faces the positive x direction, so if we grasp something on the ground, we want
+the negative x-direction so that the robot can lower itself.
+
+Here's the result after creating the pose, where `pose_0_b` is automatically
+created as the pose where we (optionally) go to beforehand for safety reasons.
+
+![](images/down_0.png)
+
+And here's the `wrist_roll_link` just to verify.
+
+![](images/down_1.png)
+
+
+
 # Wrist Rotation
 
 Using `python test_wrist_roll.py`, we noticed something odd, which we need to
@@ -38,7 +57,11 @@ to change the last joint (the wrist roll one) into 0. We will just need to take
 this into account.
 
 
-# Moving to Poses
+# Moving to Poses (Outdated but Perhaps Relevant)
+
+**Note 06/15/18: this relies on `robot_interface.py` rather than `skeleton.py`
+and may be outdated as we've been changing some of the code, but the images and
+discussion may still be relevant even if the code fragments here aren't.**
 
 Here is the pipeline **when testing using the simulator**:
 

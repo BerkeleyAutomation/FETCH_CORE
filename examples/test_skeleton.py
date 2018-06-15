@@ -23,38 +23,20 @@ def basic_camera_grippers():
     robot.open_gripper()
 
 
-def moving_to_poses_1():
-    """Moving to two poses, by defining two poses and moving in sequence."""
-    # Pose 1, move here to go above target
-    x, y, z             = ( 0.5,  0.0,  0.45)
-    rot_x, rot_y, rot_z = ( 0.0, 90.0,  0.0)
-    pose1 = robot.create_grasp_pose(x, y, z, rot_x*DEG_TO_RAD, rot_y*DEG_TO_RAD, rot_z*DEG_TO_RAD)
-
-    # Pose 2, then move here to go down, almost touching the ground
+def moving_to_poses():
+    """Move to this pose which means the gripper almost touches the ground.
+    """
     x, y, z             = ( 0.5,  0.0,  0.25)
     rot_x, rot_y, rot_z = ( 0.0, 90.0,  0.0)
-    pose2 = robot.create_grasp_pose(x, y, z, rot_x*DEG_TO_RAD, rot_y*DEG_TO_RAD, rot_z*DEG_TO_RAD)
-
-    offsets = [ 0.0,  0.0,  0.0]
+    pose0 = robot.create_grasp_pose(x, y, z, rot_x*DEG_TO_RAD, rot_y*DEG_TO_RAD, rot_z*DEG_TO_RAD)
     rospy.sleep(1)
-    robot.move_to_pose(pose1, offsets, velocity_factor=VEL) 
-    rospy.sleep(1)
-    robot.move_to_pose(pose2, offsets, velocity_factor=VEL) 
 
+    # OPTIONAL: play it safe and go to `pose_0_b` first, THEN `pose_0`. This is
+    # usually a good idea.
+    if True:
+        robot.move_to_pose(pose0+'_b', velocity_factor=VEL) 
 
-def moving_to_poses_2():
-    """Same as moving to two poses, but done by making one pose and having an
-    offset w.r.t the base link."""
-    x, y, z             = ( 0.5,  0.0,  0.25)
-    rot_x, rot_y, rot_z = ( 0.0, 90.0,  0.0)
-    pose1 = robot.create_grasp_pose(x, y, z, rot_x*DEG_TO_RAD, rot_y*DEG_TO_RAD, rot_z*DEG_TO_RAD)
-
-    offsets = [ 0.0,  0.0,  0.20]
-    rospy.sleep(1)
-    robot.move_to_pose(pose1, offsets, reference_frame='base_link', velocity_factor=VEL) 
-    offsets = [ 0.0,  0.0,  0.0]
-    rospy.sleep(1)
-    robot.move_to_pose(pose1, offsets, reference_frame='base_link', velocity_factor=VEL) 
+    robot.move_to_pose(pose0, velocity_factor=VEL) 
 
 
 if __name__ == "__main__":
@@ -63,8 +45,7 @@ if __name__ == "__main__":
     robot.head_start_pose()
 
     #basic_camera_grippers()
-    #moving_to_poses_1()
-    #moving_to_poses_2()
+    moving_to_poses()
 
     print("done, just spinning now ...")
     rospy.spin()

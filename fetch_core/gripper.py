@@ -202,6 +202,9 @@ class Gripper(object):
 
         Specifically, now have position and rotations be points with respect to
         the base_link frame (moves w/robot), so I can directly interpret it.
+        Make a pose, pose_0 which is the TARGET, but we will first go to
+        pose_0_b since that has an appropriate offset in the x-direction of
+        about the gripper length.
         """
         pcount = np.copy(self.pose_count)
         quat = tf.transformations.quaternion_from_euler(ai=rot[0], aj=rot[1], ak=rot[2])
@@ -211,3 +214,8 @@ class Gripper(object):
                                   rospy.Time.now(),
                                   'pose_'+str(pcount),
                                   'base_link')
+            self.br.sendTransform((-0.050, 0, 0),
+                                  (0, 0, 0, 1),
+                                  rospy.Time.now(),
+                                  'pose_'+str(pcount)+'_b',
+                                  'pose_'+str(pcount))

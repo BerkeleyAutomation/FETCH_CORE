@@ -183,12 +183,12 @@ class Robot_Interface(object):
         return rot
 
 
-    def create_grasp_pose(self, x, y, z, rot, intuitive=False):
+    def create_grasp_pose(self, x, y, z, rot):
         """ If `intuitive=True` then x,y,z,rot interpreted wrt some link in the
         world, e.g., 'odom' for the Fetch. It's False by default to maintain
         backwards compatibility w/Siemens-based code.
         """
-        pose_name = self.gripper.create_grasp_pose(x, y, z, rot, intuitive)
+        pose_name = self.gripper.create_grasp_pose(x, y, z, rot)
         return pose_name
 
         

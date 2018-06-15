@@ -118,9 +118,9 @@ class Gripper(object):
         #a = tf.transformations.quaternion_from_euler(ai=-2.355,aj=-3.14,ak=0.0)
         #b = tf.transformations.quaternion_from_euler(ai=0.0,aj=0.0,ak=1.57)
         a = tf.transformations.quaternion_from_euler(
-                ai=-2.355+np.pi/2.0, aj=-3.14, ak=0.0)
+                ai=-2.355, aj=-3.14, ak=0.0)
         b = tf.transformations.quaternion_from_euler(
-                ai=0.0, aj=0.0, ak=1.57+np.pi/2.0)
+                ai=0.0, aj=0.0, ak=1.57)
         base_rot = tf.transformations.quaternion_multiply(a,b)
         thread.start_new_thread(self.loop_broadcast,(norm_pose,base_rot,rot))
         rospy.sleep(1.0)

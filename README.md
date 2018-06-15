@@ -15,9 +15,9 @@ Quick start:
   rather than re-installing.)
 - Use the skeleton code provided in `fetch_core/skeleton.py`. This provides
   minimum functionality to access all relevant parts of the code.
-- To code, start off by using code similar to `examples/test_skeleton.py` which
-  will give you an overview of common code usage. The `examples/` directory has
-  other example code usage and screenshots of the Fetch in action.
+- Start off by using code similar to `examples/test_skeleton.py` which will give
+  you an overview of common code usage. The `examples/` directory has other
+  example code usage and screenshots of the Fetch in action.
 - For the Siemens challenge ([repository here][1]), we used a different skeleton
   class, `fetch_core/robot_interface.py`, which has some hard-coded base and
   head tilting for the challenge. 
@@ -79,3 +79,6 @@ roslaunch fetch_gazebo simulation.launch
 in a separate command line window.
 
 Once the setup is ready, just call `python [script_name]`.
+
+
+[1]:https://github.com/BerkeleyAutomation/siemens_challenge

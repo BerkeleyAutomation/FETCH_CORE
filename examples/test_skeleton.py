@@ -3,6 +3,10 @@ from fetch_core.skeleton import Robot_Skeleton
 import cv2, os, sys, time, rospy
 import numpy as np
 DEG_TO_RAD = np.pi / 180
+RAD_TO_DEG = 180 / np.pi
+
+# Adjust to change robot's speed.
+VEL = 1.0
 
 
 def basic_camera_grippers():
@@ -20,7 +24,12 @@ def basic_camera_grippers():
 
 
 def moving_to_poses():
-    pass
+    x, y, z             = ( 0.5,  0.0,  0.4)
+    rot_x, rot_y, rot_z = ( 0.0, 90.0,  0.0)
+    offsets             = [ 0.0,  0.0,  0.0]
+    pose = robot.create_grasp_pose(x, y, z, rot_x*DEG_TO_RAD, rot_y*DEG_TO_RAD, rot_z*DEG_TO_RAD)
+    time.sleep(2)
+    robot.move_to_pose(pose, offsets, velocity_factor=VEL) 
 
 
 if __name__ == "__main__":
@@ -28,7 +37,7 @@ if __name__ == "__main__":
     robot.body_start_pose()
     robot.head_start_pose()
 
-    basic_camera_grippers()
+    #basic_camera_grippers()
     moving_to_poses()
 
     print("done, just spinning now ...")

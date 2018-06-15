@@ -1,18 +1,13 @@
 #! /usr/bin/env python
-
 import actionlib
 import control_msgs.msg
 import rospy
-
 import tf
 import tf2_ros
 import tf2_geometry_msgs
-
 import IPython
-
 import numpy as np
 import thread
-
 from image_geometry import PinholeCameraModel as PCM
 
 CLOSED_POS = 0.0  # The position for a fully-closed gripper (meters).
@@ -41,13 +36,14 @@ class Gripper(object):
         self.br = tf.TransformBroadcaster()
         self.tl = tf.TransformListener()
 
+        self.count = 0
+        self.pose_count = 0
+
         # Justin Huang
         self._client = actionlib.SimpleActionClient(ACTION_SERVER, control_msgs.msg.GripperCommandAction)
         self._client.wait_for_server(rospy.Duration(10))
-        self.count = 0
 
         # Daniel: add a fake frame. :( TODO: need to fix and get rid of this ...
-        rospy.sleep(2.0)
         self._create_grasp_pose_fake()
         rospy.sleep(2.0)
 
@@ -74,8 +70,11 @@ class Gripper(object):
 
 
     def compute_trans_to_map(self,norm_pose,rot):
-        """TODO: Figure out the transform reference frame by looking at camera_info"""
+        """Used for Siemens challenge since we determine grasp pose by looking
+        at a camera image.
         
+        TODO: Figure out the transform reference frame by looking at camera_info
+        """
         # Daniel: changed this upon seeing differences in HSR vs Fetch's coordinate frames
         #pose = self.tl.lookupTransform('odom', 'head_camera_rgb_frame', rospy.Time(0))
         pose = self.tl.lookupTransform('odom', 'fake_head2', rospy.Time(0))
@@ -94,43 +93,44 @@ class Gripper(object):
         return trans,quat
 
 
-    def create_grasp_pose(self, x, y, z, rot, intuitive=False):
-        """Broadcast given pose and return its name.
+    def create_grasp_pose(self, x, y, z, rot):
+        """Broadcast given pose and return its name. Used for Siemens challenge.
 
         Args: 
             x,y,z,rot: all are scalars representing the pose, with `rot` as the
                 rotation about the z-axis (in _radians_).
-            intuitive: boolean, should be False except for when we are testing
-                poses, in which case we want to explicitly define a pose w.r.t.
-                the base_link for easier testing.
         """
-        self.broadcast_poses([x,y,z], rot, intuitive)
+        self.broadcast_poses([x,y,z], rot)
         grasp_name = 'grasp_'+str(self.count)
         self.count += 1
         return grasp_name
 
 
-    def broadcast_poses(self, position, rot, intuitive):
-        """TODO: figure out unit of depth image: if meters do nothing"""
-        if intuitive:
-            thread.start_new_thread(self.loop_broadcast_intuitive, (position,rot))
-        else:
-            td_points = self.pcm.projectPixelTo3dRay((position[0],position[1]))
-            norm_pose = np.array(td_points)
-            norm_pose = norm_pose/norm_pose[2]
-            norm_pose = norm_pose*(position[2])
-            #a = tf.transformations.quaternion_from_euler(ai=-2.355,aj=-3.14,ak=0.0)
-            #b = tf.transformations.quaternion_from_euler(ai=0.0,aj=0.0,ak=1.57)
-            a = tf.transformations.quaternion_from_euler(
-                    ai=-2.355+np.pi/2.0, aj=-3.14, ak=0.0)
-            b = tf.transformations.quaternion_from_euler(
-                    ai=0.0, aj=0.0, ak=1.57+np.pi/2.0)
-            base_rot = tf.transformations.quaternion_multiply(a,b)
-            thread.start_new_thread(self.loop_broadcast,(norm_pose,base_rot,rot))
+    def broadcast_poses(self, position, rot):
+        """Broadcast pose, for Siemens challenge,
+        
+        TODO: figure out unit of depth image: if meters do nothing
+        """
+        td_points = self.pcm.projectPixelTo3dRay((position[0],position[1]))
+        norm_pose = np.array(td_points)
+        norm_pose = norm_pose/norm_pose[2]
+        norm_pose = norm_pose*(position[2])
+        #a = tf.transformations.quaternion_from_euler(ai=-2.355,aj=-3.14,ak=0.0)
+        #b = tf.transformations.quaternion_from_euler(ai=0.0,aj=0.0,ak=1.57)
+        a = tf.transformations.quaternion_from_euler(
+                ai=-2.355+np.pi/2.0, aj=-3.14, ak=0.0)
+        b = tf.transformations.quaternion_from_euler(
+                ai=0.0, aj=0.0, ak=1.57+np.pi/2.0)
+        base_rot = tf.transformations.quaternion_multiply(a,b)
+        thread.start_new_thread(self.loop_broadcast,(norm_pose,base_rot,rot))
         rospy.sleep(1.0)
 
 
     def loop_broadcast(self, norm_pose, base_rot, rot_z):
+        """Loop pose, used for Siemens challenge.
+        
+        TODO: figure out what to put as config, test this out.
+        """
         norm_pose,rot = self.compute_trans_to_map(norm_pose,base_rot)
         count = np.copy(self.count)
 
@@ -140,7 +140,6 @@ class Gripper(object):
                     rospy.Time.now(),
                     'grasp_i_'+str(count),
                     'odom')
-            """TODO: figure out what to put as config"""
             self.br.sendTransform((0.0, 0.0, -0.05), # previously with z = config.gripper length
                     tf.transformations.quaternion_from_euler(ai=0.0,aj=0.0,ak=rot_z),
                     rospy.Time.now(),
@@ -148,32 +147,12 @@ class Gripper(object):
                     'grasp_i_'+str(count))
 
 
-    def loop_broadcast_intuitive(self, position, rot_z):
-        """The intuitive way to test out poses.
+    # --------------------------------------------------------------------------
+    # Solely for fake frames, ugly workaround for Siemens challenge since we
+    # need to make fake_head2 to be aligned with the HSR's camera frame for
+    # maximum code compatibility.
+    # --------------------------------------------------------------------------
 
-        Specifically, now have position and rot_z be points with respect to the
-        base_link frame, so I can directly interpret it.
-
-        grasp_i_k = pose w.r.t base link
-        grasp_k   = pose w.r.t grasp_i_k w/some offset, for better positioning. 
-        """
-        count = np.copy(self.count)
-        quat0 = (0,0,0,1) # Identity rotation, in (x,y,z,w) form, NOT (w,x,y,z)
-        quat1 = tf.transformations.quaternion_from_euler(ai=0.0, aj=0.0, ak=rot_z)
-        while True:
-            self.br.sendTransform(position,
-                                  quat0,
-                                  rospy.Time.now(),
-                                  'grasp_i_'+str(count),
-                                  'base_link') # base_link moves w/robot, odom is fixed
-            self.br.sendTransform((0.0, 0.0, 0.0),
-                                  quat1,
-                                  rospy.Time.now(),
-                                  'grasp_'+str(count),
-                                  'grasp_i_'+str(count))
-
-
-    # solely for fake frames
     def _create_grasp_pose_fake(self):
         thread.start_new_thread(self._loop_fake, ())
 
@@ -194,3 +173,41 @@ class Gripper(object):
                                   'fake_head2',
                                   'fake_head1')
 
+
+
+    # --------------------------------------------------------------------------
+    # For more intuitive grasp poses, where we define wrt the base link. This is
+    # an alternative for creating poses (the other method above uses cameras).
+    # --------------------------------------------------------------------------
+
+    def create_grasp_pose_intuitive(self, x, y, z, rot_x, rot_y, rot_z):
+        """Broadcast given pose and return its name.
+
+        Args: 
+            x,y,z,rot_x,rot_y,rot_z: 6 DoF pose, w/angles in radians.
+        """
+        self.broadcast_poses_intuitive([x,y,z], [rot_x,rot_y,rot_z])
+        pose_name = 'pose_'+str(self.pose_count)
+        self.pose_count += 1
+        return pose_name
+
+
+    def broadcast_poses_intuitive(self, position, rot):
+        thread.start_new_thread(self.loop_broadcast_intuitive, (position,rot))
+        rospy.sleep(1.0)
+
+
+    def loop_broadcast_intuitive(self, position, rot):
+        """The intuitive way to test out poses.
+
+        Specifically, now have position and rotations be points with respect to
+        the base_link frame (moves w/robot), so I can directly interpret it.
+        """
+        pcount = np.copy(self.pose_count)
+        quat = tf.transformations.quaternion_from_euler(ai=rot[0], aj=rot[1], ak=rot[2])
+        while True:
+            self.br.sendTransform(position,
+                                  quat,
+                                  rospy.Time.now(),
+                                  'pose_'+str(pcount),
+                                  'base_link')

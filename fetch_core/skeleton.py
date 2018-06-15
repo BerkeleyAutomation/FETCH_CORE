@@ -96,22 +96,18 @@ class Robot_Skeleton(object):
         return (c_img, d_img)
 
 
-    def create_grasp_pose(self, x, y, z, rot_x, rot_y, rot_z, intuitive=True):
+    def create_grasp_pose(self, x, y, z, rot_x, rot_y, rot_z):
         """Creates a pose in the world for the robot's end-effect to go to.
         
         Args:
             x, y, z, rot_x, rot_y, rot_z: A 6-D pose description.
-            intuitive: A boolean, if True then {x,y,z,rot} are interpreted wrt
-                some link in the world, e.g., 'odom' for the Fetch. In the
-                Siemens code, we set this to False because the pose that we
-                created was from viewing through a camera, making it harder to
-                interpret intuitively.
         """
-        pose_name = self.gripper.create_grasp_pose(x, y, z, rot, intuitive)
+        pose_name = self.gripper.create_grasp_pose_intuitive(
+                x, y, z, rot_x, rot_y, rot_z)
         return pose_name
 
 
-    def move_to_pose(self, pose_name, z_offset, velocity_factor=None):
+    def move_to_pose(self, pose_name, offsets, velocity_factor=None):
         """Moves to a pose.
  
         In the HSR, moved the `hand_palm_link` to the frame named `pose_name` at
@@ -120,18 +116,20 @@ class Robot_Skeleton(object):
         
         Args:
             pose_name: A string name for the pose to go 
-            z_offset: Scalar offset in z-direction, offset is wrt the pose
-                specified by `pose_name`.
+            offsets: List of offsets [x, y, z] wrt the pose by `pose_name`.
             velocity_factor: controls the speed, closer to 0 means slower,
                 closer to 1 means faster. (If 0.0, then it turns into 1.0 for
                 some reason.) Values greater than 1.0 are cut to 1.0.
         """
+        assert len(offsets) == 3
         # See: 
         #   http://wiki.ros.org/tf/Tutorials/Writing%20a%20tf%20listener%20%28Python%29
         #   https://answers.ros.org/question/256354/does-tftransformlistenerlookuptransform-return-quaternion-position-or-translation-and-rotation/
         # First frame should be the reference frame, use `base_link`, not `odom`.
         point, quat = self.gripper.tl.lookupTransform('base_link', pose_name, rospy.Time(0))
-        z_point = point[2] + z_offset
+        x_point = point[0] + offsets[0]
+        y_point = point[1] + offsets[1]
+        z_point = point[2] + offsets[2]
 
         # See:
         #   https://github.com/cse481wi18/cse481wi18/blob/indigo-devel/applications/scripts/cart_arm_demo.py
@@ -139,7 +137,7 @@ class Robot_Skeleton(object):
         ps = PoseStamped()
         ps.header.frame_id = 'base_link'
         ps.pose = Pose(
-                Point(point[0], point[1], z_point), 
+                Point(x_point, y_point, z_point), 
                 Quaternion(quat[0], quat[1], quat[2], quat[3])
         )
 

@@ -225,7 +225,7 @@ class Gripper(object):
 
     def broadcast_poses_intuitive(self, position, rot):
         thread.start_new_thread(self.loop_broadcast_intuitive, (position,rot))
-        rospy.sleep(1.0)
+        rospy.sleep(2.0)
 
 
     def loop_broadcast_intuitive(self, position, rot):

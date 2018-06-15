@@ -107,7 +107,8 @@ class Robot_Skeleton(object):
         return pose_name
 
 
-    def move_to_pose(self, pose_name, offsets, velocity_factor=None):
+    def move_to_pose(self, pose_name, offsets, reference_frame='base_link', 
+                     velocity_factor=None):
         """Moves to a pose.
  
         In the HSR, moved the `hand_palm_link` to the frame named `pose_name` at

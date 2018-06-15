@@ -130,6 +130,12 @@ class Gripper(object):
         """Loop pose, used for Siemens challenge.
         
         TODO: figure out what to put as config, test this out.
+        TODO: I think Zisu said that this has to be the odom frame ... should
+        double-check and confirm.
+
+        grasp_i_c: created wrt the odom frame for the object to grasp
+        grasp_c: where we actually go to (pretty sure, need to test), since this
+            has offset for which the gripper can then "move forward" a bit
         """
         norm_pose,rot = self.compute_trans_to_map(norm_pose,base_rot)
         count = np.copy(self.count)
@@ -140,11 +146,36 @@ class Gripper(object):
                     rospy.Time.now(),
                     'grasp_i_'+str(count),
                     'odom')
-            self.br.sendTransform((0.0, 0.0, -0.05), # previously with z = config.gripper length
-                    tf.transformations.quaternion_from_euler(ai=0.0,aj=0.0,ak=rot_z),
+
+            # Daniel: replacing this with the last one here so the offset is wrt
+            # x coordinate, and is larger (since the movement code moves wrt the
+            # wrist roll link which is some extra amount). 
+
+            ##self.br.sendTransform((0.0, 0.0, -0.05), # previously with z = config.gripper length
+            ##        tf.transformations.quaternion_from_euler(ai=0.0,aj=0.0,ak=rot_z),
+            ##        rospy.Time.now(),
+            ##        'grasp_'+str(count),
+            ##        'grasp_i_'+str(count))
+
+            # Really lame solution heh
+            self.br.sendTransform((0.0, 0.0, 0.0),
+                    tf.transformations.quaternion_from_euler(ai=0.0,aj=-np.pi/2.0,ak=0.0),
+                    rospy.Time.now(),
+                    'grasp_tmp_'+str(count),
+                    'grasp_i_'+str(count))
+            self.br.sendTransform((0.0, 0.0, 0.0),
+                    tf.transformations.quaternion_from_euler(ai=np.pi,aj=0.0,ak=0.0),
+                    rospy.Time.now(),
+                    'grasp_fetch_'+str(count),
+                    'grasp_tmp_'+str(count))
+            self.br.sendTransform((-0.150, 0.0, 0.0),
+                    # Not sure if we use this, or if we set rot_x=rot_z, then rot_z=0?
+                    #tf.transformations.quaternion_from_euler(ai=0.0,aj=0.0,ak=rot_z),
+                    tf.transformations.quaternion_from_euler(ai=0.0,aj=0.0,ak=0.0),
                     rospy.Time.now(),
                     'grasp_'+str(count),
-                    'grasp_i_'+str(count))
+                    'grasp_fetch_'+str(count))
+ 
 
 
     # --------------------------------------------------------------------------

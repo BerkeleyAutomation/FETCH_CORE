@@ -56,6 +56,8 @@ class Robot_Interface(object):
         self.start_pose = np.array([start.x, start.y, yaw])
         self.TURN_SPEED = 0.3
 
+        self.num_restarts = 0
+
 
     def body_start_pose(self, start_height=0.10, end_height=0.10, velocity_factor=None):
         """Sets the robot's body to some initial configuration.
@@ -70,7 +72,9 @@ class Robot_Interface(object):
         self.arm.move_to_joint_goal(self.tucked_list, velocity_factor=velocity_factor)
         self.torso.set_height(end_height)
         # Specific to the siemens challenge (actually a lot of this stuff is ...)
-        self.base.turn(angular_distance=45*DEG_TO_RAD)
+        if self.num_restarts == 0:
+            self.base.turn(angular_distance=45*DEG_TO_RAD)
+            self.num_restarts += 1
 
 
     def head_start_pose(self):
@@ -83,7 +87,7 @@ class Robot_Interface(object):
         self.head.pan_tilt(pan=0.0, tilt=0.8)
 
 
-    def position_start_pose(self, offsets=None):
+    def position_start_pose(self, offsets=None, do_something=False):
         """Assigns the robot's base to some starting pose.
 
         Mainly to "reset" the robot to the original starting position (and also,
@@ -100,6 +104,11 @@ class Robot_Interface(object):
             offsets: a list of length 3, indicating offsets in the x, y, and
             yaws, respectively, to be added onto the starting pose.
         """
+        # Causing problems during my tests of the Siemens demo.
+        if not do_something:
+            return
+
+
         current_pos = copy.deepcopy(self.base.odom.position)
         current_theta = Base._yaw_from_quaternion(self.base.odom.orientation) # [-pi, pi]
         ss = np.array([current_pos.x, current_pos.y, current_theta])

@@ -46,6 +46,11 @@ class Gripper(object):
         self._client.wait_for_server(rospy.Duration(10))
         self.count = 0
 
+        # Daniel: add a fake frame. :( TODO: need to fix and get rid of this ...
+        rospy.sleep(2.0)
+        self._create_grasp_pose_fake()
+        rospy.sleep(2.0)
+
 
     def open(self):
         """Opens the gripper.
@@ -70,7 +75,10 @@ class Gripper(object):
 
     def compute_trans_to_map(self,norm_pose,rot):
         """TODO: Figure out the transform reference frame by looking at camera_info"""
-        pose = self.tl.lookupTransform('odom', 'head_camera_rgb_frame', rospy.Time(0))
+        
+        # Daniel: changed this upon seeing differences in HSR vs Fetch's coordinate frames
+        #pose = self.tl.lookupTransform('odom', 'head_camera_rgb_frame', rospy.Time(0))
+        pose = self.tl.lookupTransform('odom', 'fake_head2', rospy.Time(0))
 
         M = tf.transformations.quaternion_matrix(pose[1])
         M_t = tf.transformations.translation_matrix(pose[0])
@@ -111,8 +119,12 @@ class Gripper(object):
             norm_pose = np.array(td_points)
             norm_pose = norm_pose/norm_pose[2]
             norm_pose = norm_pose*(position[2])
-            a = tf.transformations.quaternion_from_euler(ai=-2.355,aj=-3.14,ak=0.0)
-            b = tf.transformations.quaternion_from_euler(ai=0.0,aj=0.0,ak=1.57)
+            #a = tf.transformations.quaternion_from_euler(ai=-2.355,aj=-3.14,ak=0.0)
+            #b = tf.transformations.quaternion_from_euler(ai=0.0,aj=0.0,ak=1.57)
+            a = tf.transformations.quaternion_from_euler(
+                    ai=-2.355+np.pi/2.0, aj=-3.14, ak=0.0)
+            b = tf.transformations.quaternion_from_euler(
+                    ai=0.0, aj=0.0, ak=1.57+np.pi/2.0)
             base_rot = tf.transformations.quaternion_multiply(a,b)
             thread.start_new_thread(self.loop_broadcast,(norm_pose,base_rot,rot))
         rospy.sleep(1.0)
@@ -159,4 +171,26 @@ class Gripper(object):
                                   rospy.Time.now(),
                                   'grasp_'+str(count),
                                   'grasp_i_'+str(count))
+
+
+    # solely for fake frames
+    def _create_grasp_pose_fake(self):
+        thread.start_new_thread(self._loop_fake, ())
+
+    def _loop_fake(self):
+        # Identity rotation is (0,0,0,1) in (x,y,z,w) form, NOT (w,x,y,z)
+        position = [0,0,0]
+        quat0 = tf.transformations.quaternion_from_euler(ai=-np.pi/2.0, aj=0.0, ak=0.0)
+        quat1 = tf.transformations.quaternion_from_euler(ai=0.0, aj=np.pi/2.0, ak=0.0)
+        while True:
+            self.br.sendTransform(position,
+                                  quat0,
+                                  rospy.Time.now(),
+                                  'fake_head1',
+                                  'head_camera_rgb_frame')
+            self.br.sendTransform(position,
+                                  quat1,
+                                  rospy.Time.now(),
+                                  'fake_head2',
+                                  'fake_head1')
 

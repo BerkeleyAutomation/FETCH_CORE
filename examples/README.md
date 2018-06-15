@@ -1,10 +1,35 @@
 Examples to test out the Fetch. See repository README for status of which tests
 are passing, and usage. See below for images.
 
+Tests, roughly in order of newest to oldest (an `ri` in the name means it's
+using an alternative "skeleton" interface, `robot_interface.py`):
+
+- `test_basics.py`: test the robot skeleton class and moving to a pose that's
+  defined w.r.t. the base frame.
+
+- `test_ri.py`: various tests designed to check if the head, base,
+  torso, camera, gripper, etc., are moving as expected.
+
+- `spawn_object_script.py` and `test_gazebo_new_object_ri.py`: used to spawn
+  custom objects in the Gazebo simulator.
+
+- `test_base_and_position_ri.py`: test the robot base movement.
+
+- `test_wrist_roll_ri.py`: used to test why the rviz and physical Fetch robots
+  have different wrist rolls, which may be important depending on the
+  application.
+
+**Still TODO**:
+
+- `test_camera_to_world.py`: should develop test cases for when the robot goes
+  to a pose which was initially specified by its camera coordinates.
+
+- `test_movement_heuristics.py`: should test heuristics for moving the base of
+  the robot in case we can't grasp something from the Fetch's current position.
 
 # How to Move Downwards with the Skeleton Code
 
-To make the robot move downwards with `test_skeleton.py` we can create a pose at
+To make the robot move downwards with `test_basics.py` we can create a pose at
 the desired target, and it automatically creates a new pose with negative
 x-offset w.r.t. that pose. It's negative x since the robot's open gripper always
 faces the positive x direction, so if we grasp something on the ground, we want
@@ -23,7 +48,7 @@ And here's the `wrist_roll_link` just to verify.
 
 # Wrist Rotation
 
-Using `python test_wrist_roll.py`, we noticed something odd, which we need to
+Using `python test_wrist_roll_ri.py`, we noticed something odd, which we need to
 consider for real-world grasping. When we make the robot go to a pose, its wrist
 will be "open" and facing the direction of the positive x-axis. However, the
 rotation of the wrist roll joint is different by 90 degrees for rviz versus the
@@ -55,6 +80,7 @@ In Gazebo+rviz there is no such discrepancy, it's only in real+rviz.
 I'm not sure how to fix this now because all we are doing is telling the Fetch
 to change the last joint (the wrist roll one) into 0. We will just need to take
 this into account.
+
 
 
 # Moving to Poses (Outdated but Perhaps Relevant)
@@ -235,7 +261,7 @@ some tuning of the positioning.
 
 # Base Rotation and Forward Movement
 
-From running `python test_base_and_position.py`:
+From running `python test_base_and_position_ri.py`:
 
 ## Rotation
 

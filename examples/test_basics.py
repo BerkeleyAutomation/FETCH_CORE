@@ -43,25 +43,13 @@ def moving_to_poses():
     robot.move_to_pose(pose0, velocity_factor=VEL) 
 
 
-def moving_to_poses_from_cameras():
-    """Move to a pose based on camera pixels.
-    
-    Ideally, there's an easy way to do this. Unfortunately the simplest thing we
-    have now is probably the siemns demo, because that one has neural networks
-    built-in. A good testing code will require some eway to specify a pixel
-    coordinate to attend to.
-    """
-    pass
-
-
 if __name__ == "__main__":
     robot = Robot_Skeleton()
     robot.body_start_pose()
     robot.head_start_pose()
 
-    #basic_camera_grippers()
+    basic_camera_grippers()
     moving_to_poses()
-    #moving_to_poses_from_camera()
 
     print("done, just spinning now ...")
     rospy.spin()

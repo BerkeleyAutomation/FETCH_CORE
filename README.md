@@ -16,15 +16,19 @@ Quick start:
 - Use the skeleton code provided in `fetch_core/skeleton.py`. This provides
   minimum functionality to access all relevant parts of the code.
 - To code, start off by using code similar to `examples/test_skeleton.py` which
-  will give you an overview of common code usage.
+  will give you an overview of common code usage. The `examples/` directory has
+  other example code usage and screenshots of the Fetch in action.
+- For the Siemens challenge ([repository here][1]), we used a different skeleton
+  class, `fetch_core/robot_interface.py`, which has some hard-coded base and
+  head tilting for the challenge. 
 
-For the Siemens challenge ([repository here][1]), we used a different skeleton
-class, `fetch_core/robot_interface.py`, which has some hard-coded base and head
-tilting for the challenge. This also has code that can handle mapping from image
-pixels to a pose in the task space, in tandem with `fetch_core/gripper.py`.
+TODOs:
 
-See the `examples/` directory for additional usage and screenshots of the Fetch
-in action.
+- Create a pose for the robot to go to based on camera image pixels (e.g., of a
+  target object to grasp). We have draft code in `fetch_core/robot_interface.py`
+  in tandem with `fetch_core/gripper.py`, but it is not working yet. The
+  skeleton code defines poses with respect to the base link, which is easier to
+  do but harder in practical situations.
 
 
 ## Troubleshooting
@@ -75,22 +79,3 @@ roslaunch fetch_gazebo simulation.launch
 in a separate command line window.
 
 Once the setup is ready, just call `python [script_name]`.
-
-- `test_robot_interface.py` for basic tests of gripper, cameras, head movement,
-  torso.
-
-  **Status**: passing for both simulator and physical robot
-
-- `test_base_and_position.py` for testing if we can move back to a specified
-  starting location, also testing base movement more generally
-
-  **Status**: passing for both simulator and physical robot, with some results
-  recorded in `examples/README.md`.
-
-- `test_move_to_pose.py` for moving the end-effectors to certain locations.
-
-  **Status**: passing for the simulator, need to test more on the physical
-  robot, but it's also working there. It helps to have the velocity scaling
-  factor. Sometimes, though, there will be minor collisions between the arm and
-  the base, which we should investigate in more detail. There is also an issue
-  with wrist rotation.

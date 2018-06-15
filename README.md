@@ -1,17 +1,30 @@
 # FETCH_CORE
 
+This is our interface for the Fetch. 
 
-## Overview
+Partial list of requirements:
 
-This is our interface for the Fetch robot. Please import `fetch_core` in your
-code if using the Fetch, and go from there.
+- Python 2.7
+- Ubuntu 14.04
+- ROS Indigo
 
-The `fetch_core/robot_interface.py` shows expected usage by importing a class
-which contains the various aspects of interest (camera image, arm movement,
-etc).
+Quick start:
 
-See the `examples/` directory for usage and pictures, and **later in this README
-for the Siemens demonstration stuff**.
+- Install via `python setup.py develop`. (The `develop` argument meas you can
+  change the code here and see the updates immediately reflected in the code
+  rather than re-installing.)
+- Use the skeleton code provided in `fetch_core/skeleton.py`. This provides
+  minimum functionality to access all relevant parts of the code.
+- To code, start off by using code similar to `examples/test_skeleton.py` which
+  will give you an overview of common code usage.
+
+For the Siemens challenge ([repository here][1]), we used a different skeleton
+class, `fetch_core/robot_interface.py`, which has some hard-coded base and head
+tilting for the challenge. This also has code that can handle mapping from image
+pixels to a pose in the task space, in tandem with `fetch_core/gripper.py`.
+
+See the `examples/` directory for additional usage and screenshots of the Fetch
+in action.
 
 
 ## Troubleshooting
@@ -86,8 +99,8 @@ Once the setup is ready, just call `python [script_name]`.
 
 ## Siemens Demonstration
 
-(TODO: notes in progress, need to integrate and clean up the siemens
-demonstration repository.)
+**(TODO: notes in progress, need to integrate with and clean up the siemens
+demonstration repository.)**
 
 To run this with the Siemens demonstration, there are a few things to note.
 
@@ -129,3 +142,6 @@ Error [MeshManager.cc:88] Invalid mesh filename extension[/home/daniel/FETCH_COR
 Error [Visual.cc:1668] Unable to create a mesh from /home/daniel/FETCH_CORE/examples/toolbox/tape3.obj
 Error [Visual.cc:418] Ogre Error:OGRE EXCEPTION(2:InvalidParametersException): Header chunk didn't match either endian: Corrupted stream? in Serializer::determineEndianness at /build/buildd/ogre-1.8-1.8.1+dfsg/OgreMain/src/OgreSerializer.cpp (line 89)
 ```
+
+
+[1]:https://github.com/BerkeleyAutomation/siemens_challenge

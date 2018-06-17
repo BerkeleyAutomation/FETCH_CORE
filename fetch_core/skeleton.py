@@ -146,5 +146,5 @@ class Robot_Skeleton(object):
         self.gripper.open()
 
 
-    def close_gripper(self):
-        self.gripper.close()
+    def close_gripper(self, width=0.0, max_effort=100):
+        self.gripper.close(width=width, max_effort=max_effort)

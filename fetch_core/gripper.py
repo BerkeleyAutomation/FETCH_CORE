@@ -36,16 +36,17 @@ class Gripper(object):
         self.br = tf.TransformBroadcaster()
         self.tl = tf.TransformListener()
 
+        # Daniel: add a fake frame. :( TODO: need to fix and get rid of this ...
+        rospy.sleep(2.0)
+        self._create_grasp_pose_fake()
+        rospy.sleep(1.0)
+
         self.count = 0
         self.pose_count = 0
 
         # Justin Huang
         self._client = actionlib.SimpleActionClient(ACTION_SERVER, control_msgs.msg.GripperCommandAction)
         self._client.wait_for_server(rospy.Duration(10))
-
-        # Daniel: add a fake frame. :( TODO: need to fix and get rid of this ...
-        self._create_grasp_pose_fake()
-        rospy.sleep(2.0)
 
 
     def open(self):
@@ -56,15 +57,19 @@ class Gripper(object):
         self._client.send_goal_and_wait(goal, rospy.Duration(10))
 
 
-    def close(self, max_effort=MAX_EFFORT):
+    def close(self, width=0.0, max_effort=MAX_EFFORT):
         """Closes the gripper.
 
         Args:
+            width: The target gripper width, in meters. (Might need to tune to
+                make sure the gripper won't damage itself or whatever it's
+                gripping.)
             max_effort: The maximum effort, in Newtons, to use. Note that this
                 should not be less than 35N, or else the gripper may not close.
         """
+        assert CLOSED_POS <= width <= OPENED_POS
         goal = control_msgs.msg.GripperCommandGoal()
-        goal.command.position = CLOSED_POS
+        goal.command.position = width
         goal.command.max_effort = max_effort
         self._client.send_goal_and_wait(goal, rospy.Duration(10))
 

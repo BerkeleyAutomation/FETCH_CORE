@@ -10,7 +10,7 @@ Partial list of requirements:
 
 Quick start:
 
-- Install via `python setup.py develop`. (The `develop` argument meas you can
+- Install via `python setup.py develop`. (The `develop` argument means you can
   change the code here and see the updates immediately reflected in the code
   rather than re-installing.)
 

@@ -55,7 +55,7 @@ class Robot_Skeleton(object):
         rospy.loginfo("...finished initialization!")
 
 
-    def body_start_pose(self, start_height=0.10, end_height=0.10, velocity_factor=None):
+    def body_start_pose(self, start_height=0.10, end_height=0.10, velocity_factor=0.5):
         """Sets the robot's body to some initial configuration.
 
         Tucks the arm using motion planning. NEVER directly set joints as that

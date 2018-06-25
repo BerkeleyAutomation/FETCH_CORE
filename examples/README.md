@@ -10,14 +10,17 @@ using an alternative "skeleton" interface, `robot_interface.py`):
 - `test_ri.py`: various tests designed to check if the head, base,
   torso, camera, gripper, etc., are moving as expected.
 
-- `spawn_object_script.py` and `test_gazebo_new_object_ri.py`: used to spawn
-  custom objects in the Gazebo simulator.
-
 - `test_base_and_position_ri.py`: test the robot base movement.
 
 - `test_wrist_roll_ri.py`: used to test why the rviz and physical Fetch robots
   have different wrist rolls, which may be important depending on the
   application.
+
+- `test_gazebo_new_object_ri.py`: used to spawn custom objects in the Gazebo
+  simulator. NOTE: this is deprecated, don't use it, and if you want to spawn
+  custom objects, talk to either Daniel or Zisu about how to get this. The
+  tricky part is getting the object `.sdf` files to be system-independent when
+  discussing its paths.
 
 **Still TODO**:
 

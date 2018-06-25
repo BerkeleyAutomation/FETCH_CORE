@@ -6,7 +6,7 @@ DEG_TO_RAD = np.pi / 180
 RAD_TO_DEG = 180 / np.pi
 
 # Adjust to change robot's speed.
-VEL = 1.0
+VEL = 0.5
 
 
 def basic_camera_grippers():
@@ -29,27 +29,40 @@ def moving_to_poses():
     This moves via explicit coordinates, basically we need to know to go this
     amount in the x direction, etc.
     """
-    x, y, z             = ( 0.5,  0.0,  0.25)
-    rot_x, rot_y, rot_z = ( 0.0, 90.0,  0.0)
+    x, y, z             = ( 0.6,  0.0,  0.8)
+    rot_x, rot_y, rot_z = (90.0,  0.0,  0.0)
     pose0 = robot.create_grasp_pose(x, y, z, rot_x*DEG_TO_RAD, rot_y*DEG_TO_RAD, rot_z*DEG_TO_RAD)
     print("Just created pose: {}".format(pose0))
     rospy.sleep(1)
 
     # OPTIONAL: play it safe and go to `pose_0_b` first, THEN `pose_0`. This is
     # usually a good idea.
-    if True:
-        robot.move_to_pose(pose0+'_b', velocity_factor=VEL) 
+    #if True:
+    #    robot.move_to_pose(pose0+'_b', velocity_factor=VEL) 
 
     robot.move_to_pose(pose0, velocity_factor=VEL) 
 
 
+def get_arm_straight():
+    """Move robot so its arm extends outwards.
+
+    I used this to test if we can reset the zero joints, according to Fetch
+    support instructions.
+    """
+    robot.torso.set_height(0.20)
+    zeros = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    zeros_list = [(x,y) for (x,y) in zip(robot.arm_joints.names(), zeros)]
+    robot.arm.move_to_joint_goal(zeros_list, velocity_factor=0.3)
+
+
+
 if __name__ == "__main__":
     robot = Robot_Skeleton()
-    robot.body_start_pose()
-    robot.head_start_pose()
+    #robot.body_start_pose(start_height=0.20, end_height=0.20, velocity_factor=VEL)
+    #robot.head_start_pose(pan=0.0, tilt=45.0*DEG_TO_RAD)
 
-    basic_camera_grippers()
-    moving_to_poses()
+    #basic_camera_grippers()
+    #moving_to_poses()
+    get_arm_straight()
 
-    print("done, just spinning now ...")
     rospy.spin()

@@ -79,7 +79,7 @@ def get_pose_from_cimg(c_img):
 
 if __name__ == "__main__":
     num_rollouts = len([x for x in os.listdir(OUTDIR) if 'rollout' in x and x[-2:] == '.p'])
-    out_path = os.path.join(OUTDIR,'rollout_{}.p'.format(num_rollouts))
+    out_path = os.path.join(OUTDIR,'rollout_{}/rollout.p'.format(num_rollouts))
     print("Get things set up to save at: {}".format(out_path))
     side = set_up_bed()
     rollout = []

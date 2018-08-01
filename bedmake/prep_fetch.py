@@ -7,7 +7,7 @@ BTW: I usually make it so the Fetch is about 19 inches away from the bed, and
 then is closer to the end it traverses. It's about 3 inches to the end.
 """
 from fetch_core.skeleton import Robot_Skeleton
-import cv2, os, sys, time, rospy
+import cv2, os, sys, time, rospy, utils
 import numpy as np
 np.set_printoptions(linewidth=200, edgeitems=10)
 DEG_TO_RAD = np.pi / 180
@@ -15,34 +15,6 @@ RAD_TO_DEG = 180 / np.pi
 
 # Adjust to change robot's speed.
 VEL = 0.5
-
-
-def depth_to_3ch(img):
-    """HUGE NOTE: this (the 1.2 cutoff) assumes the units are in _meters_."""
-    w,h = img.shape
-    new_img = np.zeros([w,h,3])
-    img = img.flatten()
-    img[img>1.2] = 0
-    img = img.reshape([w,h])
-    for i in range(3):
-        new_img[:,:,i] = img
-    return new_img
-
-
-def depth_scaled_to_255(img):
-    img = 255.0/np.max(img)*img
-    img = np.array(img,dtype=np.uint8)
-    for i in range(3):
-        img[:,:,i] = cv2.equalizeHist(img[:,:,i])
-    return img
-
-
-def depth_to_net_dim(img):
-    assert img.shape == (480,640)
-    img = depth_to_3ch(img)
-    img = depth_scaled_to_255(img)
-    return img
-
 
 if __name__ == "__main__":
     robot = Robot_Skeleton()
@@ -70,7 +42,8 @@ if __name__ == "__main__":
     print("now:")
     print(d_img)
 
-    d_img = depth_to_net_dim(d_img)
+    # Adjust cutoff as desired.
+    d_img = utils.depth_to_net_dim(d_img, cutoff=1.0)
 
     cv2.imwrite("tmp/c_img_0.png", c_img)
     cv2.imwrite("tmp/d_img_0.png", d_img)

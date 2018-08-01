@@ -16,6 +16,7 @@ RAD_TO_DEG = 180 / np.pi
 # Adjust to change robot's speed.
 VEL = 0.5
 
+
 if __name__ == "__main__":
     robot = Robot_Skeleton()
     robot.body_start_pose(start_height=0.00, end_height=0.00, velocity_factor=VEL)

@@ -2,6 +2,9 @@
 Use to position the Fetch correctly before we start.
 It also saves c_img and d_img, solely for testing (and also visualizes what it'd
 look like with preprocessing).
+
+BTW: I usually make it so the Fetch is about 19 inches away from the bed, and
+then is closer to the end it traverses. It's about 3 inches to the end.
 """
 from fetch_core.skeleton import Robot_Skeleton
 import cv2, os, sys, time, rospy

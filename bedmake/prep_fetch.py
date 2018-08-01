@@ -72,8 +72,8 @@ if __name__ == "__main__":
 
     d_img = depth_to_net_dim(d_img)
 
-    cv2.imwrite("c_img_0.png", c_img)
-    cv2.imwrite("d_img_0.png", d_img)
+    cv2.imwrite("tmp/c_img_0.png", c_img)
+    cv2.imwrite("tmp/d_img_0.png", d_img)
     print("saved camera, depth images!")
 
     while True:

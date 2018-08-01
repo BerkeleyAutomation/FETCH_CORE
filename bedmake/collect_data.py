@@ -4,7 +4,7 @@ All assuming we manually arrange the bed frame. See the data collection protocol
 for more details.
 """
 from fetch_core.skeleton import Robot_Skeleton
-import cv2, os, sys, time, rospy, pickle
+import cv2, os, sys, time, rospy, pickle, utils
 import numpy as np
 np.set_printoptions(linewidth=200, edgeitems=10)
 DEG_TO_RAD = np.pi / 180
@@ -59,7 +59,7 @@ def set_up_bed():
         print("-> Try making sheet (roughly) flat")
     else:
         print("-> Try making sheet (roughly) wrinkled")
-    perc = (np.random.rand() * 0.8) * 100
+    perc = (np.random.rand() * 0.7) * 100
     print("-> try putting corner roughly {:.0f}% to completion".format(perc))
     if np.random.rand() < 0.5:
         print("-> Simulate same side as robot, so don't pull opposite side")
@@ -78,9 +78,10 @@ def get_pose_from_cimg(c_img):
 
 
 if __name__ == "__main__":
-    num_rollouts = len([x for x in os.listdir(OUTDIR) if 'rollout' in x and x[-2:] == '.p'])
+    num_rollouts = len([x for x in os.listdir(OUTDIR) if 'rollout_' in x])
+    os.makedirs( os.path.join(OUTDIR,'rollout_{}'.format(num_rollouts)) )
     out_path = os.path.join(OUTDIR,'rollout_{}/rollout.p'.format(num_rollouts))
-    print("Get things set up to save at: {}".format(out_path))
+    print("\n\n\n\n\n\n\n\n\n\nGet things set up to save at: {}".format(out_path))
     side = set_up_bed()
     rollout = []
 
@@ -95,7 +96,8 @@ if __name__ == "__main__":
     # placeholder as we may not have finished with the initial sheet setup.
     # ACTIONABLE: get the initial sheet set up, then press any key (except ESC).
     c_img, _ = robot.get_img_data()
-    call_wait_key(cv2.imshow("(A placeholder to stop code, finish sheet and press a key).",c_img))
+    cv2.imwrite("tmp/cimg_{}.png".format(len(os.listdir('tmp/'))), c_img)
+    call_wait_key(cv2.imshow("(A placeholder to stop code, finish sheet and press a key)",c_img))
 
     # Proceed forward, get the first c_img/d_img pair that the grasp net sees.
     print("\nFIRST IMAGE ...")

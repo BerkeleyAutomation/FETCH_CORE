@@ -34,26 +34,38 @@ def depth_to_net_dim(img, cutoff=1.0):
 
 
 # Only for testing the red contours for images.
-def red_contour(image, save_images=False):
-    """The HSR (and Fetch) have images in BGR mode."""
-    lower = np.array([150, 100, 100])
-    upper = np.array([180, 255, 255])
-    #image = cv2.medianBlur(image, 9)
-    image = cv2.bilateralFilter(image, 7, 13, 13)
-    hsv   = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    mask  = cv2.inRange(hsv, lower, upper)
-    res   = cv2.bitwise_and(image, image, mask=mask)
-    res   = cv2.medianBlur(res, 9)
-    if save_images:
-        cv2.imwrite("tmp/c_img_0_red.png", res)
+def red_contour(image, save_images=False, fname=None):
+    """The HSR (and Fetch) have images in BGR mode.
+
+    This method for detecting red is courtesy of Ron Berenstein. We tried
+    HSV-based methods but it's really bad.
+    """
+    original = image.copy()
+
+    b, g, r = cv2.split(image)
+    bw0 = (r[:,:]>150).astype(np.uint8)*255
+
+    bw1 = cv2.divide(r, g[:, :] + 1)
+    bw1 = (bw1[:, :] > 1.5).astype(np.uint8)*255
+    bw1 = np.multiply(bw1, bw0).astype(np.uint8) * 255 
+    bw2 = cv2.divide(r, b[:,:]+1)
+    bw2 = (bw2[:, :] > 1.5).astype(np.uint8)*255
+    
+    bw = np.multiply(bw1, bw2).astype(np.uint8) * 255
+    kernel = np.ones((5, 5), np.uint8)
+    bw = cv2.morphologyEx(bw, cv2.MORPH_OPEN, kernel)
+    bw = cv2.dilate(bw, kernel, iterations=1)
+    _, bw = cv2.threshold(bw,0,255,0)
 
     # Now get the actual contours.  Note that contour detection requires a
     # single channel image. Also, we only want the max one as that should be
     # where the sewn patch is located.
-    image = cv2.cvtColor(res, cv2.COLOR_HSV2BGR) 
-    image_bgr = image.copy()
-    (cnts, _) = cv2.findContours(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY), 
-            cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    (cnts, _) = cv2.findContours(bw, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    if len(cnts) == 0:
+        cv2.imwrite("problem_original.png", original)
+        cv2.imwrite("problem_bw.png", bw)
+        print("Problem, len(cnts) == 0. See saved images...")
+        sys.exit()
     cnt_largest = max(cnts, key = lambda cnt: cv2.contourArea(cnt))
 
     # Find the centroid in _pixel_space_. Draw it.
@@ -73,13 +85,14 @@ def red_contour(image, save_images=False):
                         fontScale=1, 
                         color=(255,255,255), 
                         thickness=2)
-            cv2.imwrite("tmp/c_img_0_cnt.png", image_bgr)
+            cv2.imwrite(fname.replace('.png','_cnt.png'), image_bgr)
         return (cX,cY)
     except:
         print("PROBLEM CANNOT DETECT CONTOUR ...")
 
 
 if __name__ == "__main__":
-    #img = cv2.imread("tmp/c_img_0.png")
-    img = cv2.imread("tmp/rollout_0_grasp_0_rgb.png")
-    red_contour(img.copy(), save_images=True)
+    for i in range(1,11):
+        fname = "cimgs/cimg_{}.png".format(i)
+        img = (cv2.imread(fname)).copy()
+        red_contour(img, save_images=True, fname=fname)

@@ -28,13 +28,17 @@ for rnum in range(0, 60):
 
     for (d_idx,datum) in enumerate(data):
         print("\ncurrently on item {} in this rollout, out of {}:".format(d_idx,len(data)))
-        print('type:   {}'.format(datum['type']))
         print('side:   {}'.format(datum['side']))
-        print('class:  {}'.format(datum['class']))
-        print('pose:   {}'.format(datum['pose']))
+        print('type:   {}'.format(datum['type']))
+        if datum['type'] == 'grasp':
+            print('pose:   {}'.format(datum['pose']))
+        elif datum['type'] == 'success':
+            print('class:  {}'.format(datum['class']))
+        else:
+            raise ValueError(datum['type'])
 
         # Get the depth image to look better.
-        d_img = utils.depth_to_net_dim(d_img, cutoff=1.0)
+        datum['d_img'] = utils.depth_to_net_dim(datum['d_img'], cutoff=1.0)
 
         # Grasping. For these, overlay the pose to the image (red circle, black border).
         if datum['type'] == 'grasp':

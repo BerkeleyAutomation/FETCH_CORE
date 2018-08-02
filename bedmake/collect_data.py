@@ -55,20 +55,27 @@ def set_up_bed():
     It's research code, please don't criticize ...
     """
     print("\n --- SET UP THE BED/SHEET ---")
+
     if np.random.rand() < 0.5:
         print("-> Try making sheet (roughly) flat")
+        style = 'Flat'
     else:
         print("-> Try making sheet (roughly) wrinkled")
+        style = 'Wrinkled'
+
     perc = (np.random.rand() * 0.7) * 100
+    perc = max(perc, 5.0)
     print("-> try putting corner roughly {:.0f}% to completion".format(perc))
+
     if np.random.rand() < 0.5:
         print("-> Simulate same side as robot, so don't pull opposite side")
         side = 'BOTTOM'
     else:
         print("-> ALERT! Pretend we are the robot on the opposite side and grasp+pull the opposite corner.")
         side = 'TOP'
+
     print("Don't forget the desiderata in the data collection protocol!\n")
-    return side
+    return (style, perc, side)
 
 
 def get_pose_from_cimg(c_img):
@@ -82,7 +89,7 @@ if __name__ == "__main__":
     os.makedirs( os.path.join(OUTDIR,'rollout_{}'.format(num_rollouts)) )
     out_path = os.path.join(OUTDIR,'rollout_{}/rollout.p'.format(num_rollouts))
     print("\n\n\n\n\n\n\n\n\n\nGet things set up to save at: {}".format(out_path))
-    side = set_up_bed()
+    style, perc, side = set_up_bed()
     rollout = []
 
     # Set to stuff from `prep_fetch.py`, while we adjust the bed. (This is
@@ -105,7 +112,10 @@ if __name__ == "__main__":
     debug(c_img, d_img)
     cv2.patchNaNs(d_img, 0)
     pose = get_pose_from_cimg(c_img)
+    print("pose: {}".format(pose))
     datum = {'c_img': c_img, 'd_img': d_img, 'side': side, 'pose': pose, 'type': 'grasp'}
+    datum['style'] = style
+    datum['perc'] = perc
     rollout.append(datum)
 
     # Show first image that the grasp net would see. ACTIONABLE: must simulate a
@@ -120,9 +130,14 @@ if __name__ == "__main__":
     debug(c_img, d_img)
     cv2.patchNaNs(d_img, 0)
     pose = get_pose_from_cimg(c_img)
+    print("pose: {}".format(pose))
     datum = {'c_img': c_img, 'd_img': d_img, 'side': side, 'class': 1, 'type': 'success'}
+    datum['style'] = style
+    datum['perc'] = perc
     rollout.append(datum)
     datum = {'c_img': c_img, 'd_img': d_img, 'side': side, 'type':'grasp', 'pose': pose}
+    datum['style'] = style
+    datum['perc'] = perc
     rollout.append(datum)
 
     # ACTIONABLE: this time, actually grasp+pull and succeed at it! But make
@@ -136,6 +151,8 @@ if __name__ == "__main__":
     debug(c_img, d_img)
     cv2.patchNaNs(d_img, 0)
     datum = {'c_img': c_img, 'd_img': d_img, 'side': side, 'class': 0, 'type': 'success'}
+    datum['style'] = style
+    datum['perc'] = perc
     rollout.append(datum)
 
     # Show what the success net sees. Press any key to exit.

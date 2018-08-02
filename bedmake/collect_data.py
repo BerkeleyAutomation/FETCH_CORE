@@ -81,6 +81,9 @@ def set_up_bed():
 def get_pose_from_cimg(c_img):
     """ TODO it's trivial but cumbersome """
     pose = list(utils.red_contour(c_img))
+    pose[0] = float(pose[0])
+    pose[1] = float(pose[1])
+    assert len(pose) == 2
     return pose
 
 

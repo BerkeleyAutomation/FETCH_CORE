@@ -47,10 +47,10 @@ def red_contour(image, save_images=False, fname=None):
 
     bw1 = cv2.divide(r, g[:, :] + 1)
     bw1 = (bw1[:, :] > 1.5).astype(np.uint8)*255
-    bw1 = np.multiply(bw1, bw0).astype(np.uint8) * 255 
+    bw1 = np.multiply(bw1, bw0).astype(np.uint8) * 255
     bw2 = cv2.divide(r, b[:,:]+1)
     bw2 = (bw2[:, :] > 1.5).astype(np.uint8)*255
-    
+
     bw = np.multiply(bw1, bw2).astype(np.uint8) * 255
     kernel = np.ones((5, 5), np.uint8)
     bw = cv2.morphologyEx(bw, cv2.MORPH_OPEN, kernel)

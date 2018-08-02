@@ -6,12 +6,14 @@ import numpy as np
 np.set_printoptions(suppress=True, linewidth=200)
 
 # ADJUST
-ROLLOUTS = 'rollouts/'
-IMG_PATH = 'images/'
+ROLLOUTS = '/nfs/diskstation/seita/bed-make/rollouts_white_v01/'
+IMG_PATH = '/nfs/diskstation/seita/bed-make/images_white_v01/'
+CUTOFF   = 1.2  # For depth image cutoff
 
 g_total = 0
 s_count_failure = 0
 s_count_success = 0
+print("Dealing with cutoff for depths: {}".format(CUTOFF))
 
 for rnum in range(0, 60):
     print("\n=====================================================================")
@@ -30,6 +32,8 @@ for rnum in range(0, 60):
         print("\ncurrently on item {} in this rollout, out of {}:".format(d_idx,len(data)))
         print('side:   {}'.format(datum['side']))
         print('type:   {}'.format(datum['type']))
+        print('style:  {}'.format(datum['style']))
+        print('perc:   {:.1f}'.format(datum['perc']))
         if datum['type'] == 'grasp':
             print('pose:   {}'.format(datum['pose']))
         elif datum['type'] == 'success':
@@ -38,7 +42,7 @@ for rnum in range(0, 60):
             raise ValueError(datum['type'])
 
         # Get the depth image to look better.
-        datum['d_img'] = utils.depth_to_net_dim(datum['d_img'], cutoff=1.0)
+        datum['d_img'] = utils.depth_to_net_dim(datum['d_img'], cutoff=CUTOFF)
 
         # Grasping. For these, overlay the pose to the image (red circle, black border).
         if datum['type'] == 'grasp':

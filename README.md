@@ -67,6 +67,8 @@ points.
 - For the physical robot, for BOTH MoveIt! and rviz you need to export the
   correct `ROS_MASTER_URI` variable.
 
+For more information, see [the Fetch Docs][2].
+
 ## Tests
 
 Look at `examples/`.
@@ -86,8 +88,9 @@ simulation:
 roslaunch fetch_gazebo simulation.launch
 ```
 
-In either case, any time MoveIt is used (for planning, computing inverse
-kinematics, etc.), you must have the following command:
+with `ROS_MASTER_URI=localhost:11311`. In either case, any time MoveIt is used
+(for planning, computing inverse kinematics, etc.), you must have the following
+command:
 
 ```
 roslaunch fetch_moveit_config move_group.launch
@@ -99,3 +102,4 @@ Once the setup is ready, just call `python [script_name]`.
 
 
 [1]:https://github.com/BerkeleyAutomation/siemens_challenge
+[2]:http://docs.fetchrobotics.com/index.html

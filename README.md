@@ -1,8 +1,6 @@
 # FETCH_CORE
 
-This is our interface for the Fetch. 
-
-Partial list of requirements:
+This is our interface for the Fetch.  Partial list of requirements:
 
 - Python 2.7
 - Ubuntu 14.04
@@ -10,20 +8,19 @@ Partial list of requirements:
 
 Quick start:
 
-- Install via `python setup.py develop`. (The `develop` argument means you can
-  change the code here and see the updates immediately reflected in the code
-  rather than re-installing.)
+- Install via `python setup.py develop`, so that you can change
+  code here and see the updates immediately reflected rather than
+  re-installing the package.
 
 - Use the skeleton code provided in `fetch_core/skeleton.py`. This provides
-  minimum functionality to access all relevant parts of the code.
+  minimum functionality to access all relevant parts of the code. For the
+  Siemens challenge ([repository here][1]), we used a different skeleton class,
+  `fetch_core/robot_interface.py`, which has some hard-coded base and head
+  tilting for the challenge, but don't use that. 
 
 - Start off by using code similar to `examples/test_skeleton.py` which will give
   you an overview of common code usage. The `examples/` directory has other
   example code usage and screenshots of the Fetch in action.
-
-- For the Siemens challenge ([repository here][1]), we used a different skeleton
-  class, `fetch_core/robot_interface.py`, which has some hard-coded base and
-  head tilting for the challenge. 
 
 TODOs:
 
@@ -74,25 +71,29 @@ points.
 
 Look at `examples/`.
 
-To test these, make sure the physical Fetch is on (or the Gazebo simulator is
-running with some launch file) and that your machine is connected to the robot
-by being on the AUTOLAB WiFi and with `ROS_MASTER_URI` set up appropriately.
-
-Any time MoveIt is used (for planning, computing inverse kinematics, etc.), you
-must have the following command:
+If you are using the physical Fetch robot, turn it on, and be sure your machine
+is connected to the robot by being on the AUTOLAB WiFi and with `ROS_MASTER_URI`
+set up appropriately (we have Fetch 59):
 
 ```
-roslaunch fetch_moveit_config move_group.launch
+export ROS_MASTER_URI=http://fetch59.local:11311
 ```
 
-running in the background, for both the simulator and the real robot, before
-calling these scripts. If running the simulator, then call something like this:
+Alternatively, have the Gazebo simulator running if you just want to run
+simulation:
 
 ```
 roslaunch fetch_gazebo simulation.launch
 ```
 
-in a separate command line window.
+In either case, any time MoveIt is used (for planning, computing inverse
+kinematics, etc.), you must have the following command:
+
+```
+roslaunch fetch_moveit_config move_group.launch
+```
+
+running in the background, before calling whatever code you're using.
 
 Once the setup is ready, just call `python [script_name]`.
 

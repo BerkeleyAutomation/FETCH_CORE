@@ -63,7 +63,9 @@ points.
   cable to connect it with the Fetch head.
 
 - When the robot is turned ON, the area where it is turned ON is considered the
-  `'odom'` link. So be careful if you set points with respect to that frame.
+  `odom` link. The `base_link` is also set at that position, but it moves in
+  accordance with the bottom of the Fetch's base when it moves, whereas `odom`
+  stays fixed. Thus, `odom` is like the `map` frame from the HSR.
 
 - For the physical robot, for BOTH MoveIt! and rviz you need to export the
   correct `ROS_MASTER_URI` variable.

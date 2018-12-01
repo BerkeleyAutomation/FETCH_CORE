@@ -60,7 +60,6 @@ if __name__ == "__main__":
     robot = Robot_Skeleton()
     #robot.body_start_pose(start_height=0.20, end_height=0.20, velocity_factor=VEL)
     #robot.head_start_pose(pan=0.0, tilt=45.0*DEG_TO_RAD)
-
     #basic_camera_grippers()
     #moving_to_poses()
     get_arm_straight()

@@ -17,8 +17,10 @@ def move_from_camera_pixels():
 
 if __name__ == "__main__":
     robot = Robot_Skeleton()
-    robot.body_start_pose()
-    robot.head_start_pose()
-    move_from_camera_pixels()
+    #robot.body_start_pose()
+    robot.head_start_pose(tilt=45*DEG_TO_RAD)
+
+    #move_from_camera_pixels()
+
     print("done, just spinning now ...")
     rospy.spin()

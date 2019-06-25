@@ -27,6 +27,7 @@ def grab_item():
     # Our actual target position
     x, y, z             = ( 0.5,  0.0,  0.23)
     rot_x, rot_y, rot_z = ( 0.0, 90.0,  0.0)
+    import ipdb; ipdb.set_trace()
     pose1 = robot.create_grasp_pose(x, y, z, rot_x*DEG_TO_RAD, rot_y*DEG_TO_RAD, rot_z*DEG_TO_RAD)
     rospy.sleep(1)
 

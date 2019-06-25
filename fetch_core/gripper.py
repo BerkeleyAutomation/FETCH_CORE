@@ -143,6 +143,7 @@ class Gripper(object):
             has offset for which the gripper can then "move forward" a bit
         """
         norm_pose,rot = self.compute_trans_to_map(norm_pose,base_rot)
+        print(norm_pose) #Adi: I think this is the point in the world frame that we are trying to grasp at
         count = np.copy(self.count)
 
         while True:

@@ -42,7 +42,7 @@ if __name__ == "__main__":
     delete_model, spawn_model, object_monitor = ss.setup_delete_spawn_service()
     #ss.spawn_from_uniform(1, spawn_model)
     ss.clean_floor(delete_model, object_monitor)
-    ss.spawn_from_gaussian(1, spawn_model)
+    ss.spawn_from_uniform(1, spawn_model)
     print(ss.get_object_list(object_monitor))
     
     rospy.spin()

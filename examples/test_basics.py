@@ -8,10 +8,30 @@ RAD_TO_DEG = 180 / np.pi
 # Adjust to change robot's speed.
 VEL = 0.5
 
+def depth_scaled_to_255(d_img):
+    d_img = 255.0/np.max(d_img)*d_img
+    d_img = np.array(d_img, dtype=np.uint8)
+    for i in range(3):
+        d_img[:, :, i] = cv2.equalizeHist(d_img[:, :, i])
+    return d_img
+
+def depth_to_3ch(d_img, cutoff):
+    w,h = d_img.shape
+    n_img = np.zeros([w, h, 3])
+    d_img = d_img.flatten()
+    d_img[d_img>cutoff] = 0.0
+    d_img = d_img.reshape([w,h])
+    for i in range(3):
+        n_img[:, :, i] = d_img
+    return n_img
+
 
 def basic_camera_grippers():
     # Get some camera images and save them.
     c_img, d_img = robot.get_img_data()
+    #print(d_img)
+    d_img = depth_to_3ch(d_img, 1.400)
+    d_img = depth_scaled_to_255(d_img)
     cv2.line(c_img,(0,0),(320, 240),(255,255,255),15)
     cv2.imwrite("c_img_0.png", c_img)
     cv2.imwrite("d_img_0.png", d_img)

@@ -75,7 +75,7 @@ def spawn_from_uniform(n, spawn_model):
         # pose
         #pt_x = np.random.uniform(LIMIT['x'][0], LIMIT['x'][1])
         #pt_y = np.random.uniform(LIMIT['y'][0], LIMIT['y'][1])
-        pt_x = 0.5
+        pt_x = 0.7
         pt_y = 0.0
         ei = np.random.uniform(LIMIT['rad'][0], LIMIT['rad'][1])
         ej = np.random.uniform(LIMIT['rad'][0], LIMIT['rad'][1])

@@ -9,19 +9,11 @@ RAD_TO_DEG = 180 / np.pi
 VEL = 0.5
 
 
-def basic_camera_grippers():
-    # Get some camera images and save them.
-    c_img, d_img = robot.get_img_data()
-    cv2.imwrite("c_img_0.png", c_img)
-    cv2.imwrite("d_img_0.png", d_img)
-
-    # Open and close grippers, twice.
+def move_grippers(times):
     print("now opening and closing grippers!")
-    robot.close_gripper()
-    robot.open_gripper()
-    robot.close_gripper()
-    robot.open_gripper()
-
+    for i in range(times):
+        robot.close_gripper()
+        robot.open_gripper()
 
 def moving_to_poses():
     """Move to this pose which means the gripper almost touches the ground.
@@ -54,14 +46,43 @@ def get_arm_straight():
     zeros_list = [(x,y) for (x,y) in zip(robot.arm_joints.names(), zeros)]
     robot.arm.move_to_joint_goal(zeros_list, velocity_factor=0.3)
 
+# IMAGE PROCESSING
 
+def get_cam_output():
+    # Gets the depth and rgb images set under ../fetch_core/camera.py
+    c_img, d_img = robot.get_img_data()
+    d_img = depth_to_3ch(d_img, 1400)
+    d_img = depth_3ch_to_255(d_img)
+    cv2.imwrite("rgb_img.png", c_img)
+    cv2.imwrite("depth_img.png", d_img)
+
+# Scales grayscale to RGB
+def depth_to_3ch(d_img, cutoff):
+    w,h = d_img.shape
+    n_img = np.zeros([w, h, 3])
+    d_img = d_img.flatten()
+    d_img[d_img>cutoff] = 0.0
+    d_img = d_img.reshape([w,h])
+    for i in range(3):
+        n_img[:, :, i] = d_img
+    return n_img
+
+# scales it up to 255
+def depth_3ch_to_255(d_img):
+    d_img = 255.0/np.max(d_img)*d_img
+    d_img = np.array(d_img, dtype=np.uint8)
+    for i in range(3):
+        d_img[:, :, i] = cv2.equalizeHist(d_img[:, :, i])
+    return d_img    
 
 if __name__ == "__main__":
     robot = Robot_Skeleton()
-    #robot.body_start_pose(start_height=0.20, end_height=0.20, velocity_factor=VEL)
-    #robot.head_start_pose(pan=0.0, tilt=45.0*DEG_TO_RAD)
-    #basic_camera_grippers()
+    robot.body_start_pose(start_height=0.20, end_height=0.20, velocity_factor=VEL)
+    robot.head_start_pose(pan=0.0, tilt=45.0*DEG_TO_RAD)
     #moving_to_poses()
-    get_arm_straight()
+    move_grippers(times=2) # grippers
+    get_cam_output() # depth_raw and rgb_raw output
+
+    # get_arm_straight()
 
     rospy.spin()

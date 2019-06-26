@@ -11,18 +11,10 @@ VEL = 0.5
 def save_camera_images():
     # Get some camera images and save them. 
     c_img, d_img = robot.get_img_data()
-    # print("c_img" + c_img, file=open("color_image_values.txt", "w"))
-    print("d_img" + d_img, file=open("depth_image_values.txt", "w"))
 
-    cv2.imwrite("rgbd_img_0.png", c_img)
-    cv2.imwrite("depth_img_0.png", d_img)
+    cv2.imwrite("rgb_img.png", c_img)
+    cv2.imwrite("depth_img.png", d_img)
     print("Saved images...check them out!")
-
-def open_gripper(times):
-    print("now opening and closing grippers!")
-    for t in range(times):
-        robot.close_gripper()
-        robot.open_gripper()
 
 if __name__ == "__main__":
     robot = Robot_Skeleton()

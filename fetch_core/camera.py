@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import argparse, cv2, math, os, rospy, sys, threading, time
 from pprint import pprint
-from sensor_msgs.msg import CameraInfo, Image, JointState, PointCloud2
+from sensor_msgs.msg import Image, PointCloud2, CameraInfo, JointState
 from cv_bridge import CvBridge, CvBridgeError
 
 import tf
@@ -19,32 +19,33 @@ class RGBD(object):
         topic_name_i = 'head_camera/rgb/camera_info'
         topic_name_d = 'head_camera/depth_registered/image_raw'
 
-        self._bridge = CvBridge()
-        self._input_color_image = None
-        self._input_depth_image = None
-        self._info = None
+        self.bridge = CvBridge()
+        self.img_rgb_raw = None
+        self.img_depth_raw = None
+        self.info = None
         self.is_updated = False
 
-        self._sub_color_image = rospy.Subscriber(topic_name_c, Image, self._color_image_cb)
-        self._sub_depth_image = rospy.Subscriber(topic_name_d, Image, self._depth_image_cb)
-        self._sub_info        = rospy.Subscriber(topic_name_i, CameraInfo, self._info_cb)
+        #rospy.Subscriber(name, data_msg_class, callback)
+        self.sub_rgb_raw = rospy.Subscriber(topic_name_c, Image, self.callback_rgb_raw)
+        self.sub_depth_raw = rospy.Subscriber(topic_name_d, Image, self.callback_depth_raw)
+        # self._sub_info        = rospy.Subscriber(topic_name_i, CameraInfo, self._info_cb)
 
 
-    def _color_image_cb(self, data):
+    def callback_rgb_raw(self, data):
         try:
-            self._input_color_image = self._bridge.imgmsg_to_cv2(data, "bgr8")
+            img_rgb_raw = self.bridge.imgmsg_to_cv2(data, "bgr8")
             self.color_time_stamped = data.header.stamp
             self.is_updated = True
-        except CvBridgeError as cv_bridge_exception:
-            rospy.logerr(cv_bridge_exception)
+        except CvBridgeError as e:
+            rospy.logerr(e)
+            print(e)
 
-
-    def _depth_image_cb(self, data):
+    def callback_depth_raw(self, data):
         try:
-            self._input_depth_image = self._bridge.imgmsg_to_cv2(
+             self._input_depth_image = self._bridge.imgmsg_to_cv2(
                     data, desired_encoding="passthrough")
-        except CvBridgeError as cv_bridge_exception:
-            rospy.logerr(cv_bridge_exception)
+        except CvBridgeError as e:
+            rospy.logerr(e)
 
 
     def _info_cb(self,data):
@@ -55,11 +56,11 @@ class RGBD(object):
 
 
     def read_color_data(self):
-        return self._input_color_image
+        return self.img_rgb_raw
 
 
     def read_depth_data(self):
-        return self._input_depth_image
+        return self.img_depth_raw
 
 
     def read_info_data(self):

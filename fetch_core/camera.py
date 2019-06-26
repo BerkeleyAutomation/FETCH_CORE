@@ -26,7 +26,7 @@ class RGBD(object):
         # Use `rqt_image_view` to see a interactive GUI of the possible rostopics
         
         self.sub_rgb_raw = rospy.Subscriber('head_camera/rgb/image_raw', Image, self.callback_rgb_raw)
-        self.sub_depth_raw = rospy.Subscriber("head_camera/depth_registered/image_raw", Image, self.callback_depth_raw)
+        self.sub_depth_raw = rospy.Subscriber("head_camera/depth/image_raw", Image, self.callback_depth_raw)
         self._sub_info = rospy.Subscriber("head_camera/rgb/camera_info", CameraInfo, self.callback_cam_info)
 
     def callback_rgb_raw(self, data):

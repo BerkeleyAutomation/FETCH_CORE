@@ -24,14 +24,14 @@ Quick start:
 
 TODOs:
 
-- Develop simple test cases where we specify camera coordinates for a robot's
+- [ ] Develop simple test cases where we specify camera coordinates for a robot's
   gripper to go to, ideally by simply drawing a bounding box around a set of
   image pixels.  Then this will test if camera-to-workspace is succeeding. There
   isn't a clean test case for this, and the closest is based on the Siemens
   challenge code in tandem with `fetch_core/robot_interface.py` and
   `fetch_core/gripper.py`.
 
-- It is not possible (or at least, *very* difficult) to do planning with the
+- [ ] It is not possible (or at least, *very* difficult) to do planning with the
   arms *and* the base simultaneously with the Fetch using MoveIt. Thus, we can't
   do the base planning like the HSR does, which means the quickest solution is
   to develop a heuristic: if the robot's Inverse Kinematics (IK) do not find a
@@ -44,7 +44,7 @@ points.
 
 ## Troubleshooting
 
-- Make sure you are on the AUTOLAB WiFi with `ROS_MASTER_URI` set up
+- Make sure you are on the *Automation* WiFi with `ROS_MASTER_URI` set up
   appropriately (e.g., in `~/.bashrc`).
 
 - Don't set the Fetch to be as high as 0.4m. The max height we should use in
@@ -66,6 +66,8 @@ points.
 
 - For the physical robot, for BOTH MoveIt! and rviz you need to export the
   correct `ROS_MASTER_URI` variable.
+
+- Running moveit! might throw an error that is outside of 0.01 tolerance. You can run roslaunch for moveit and see the error details. It shouldn't matter. As of our version, there should be some way to publish 0.0 (so no tolerance check) or up the tolerance level, but we haven't done it since it doesn't matter for our tasks. Interestingly enough, it seems to self-correct after a while as well at least for `simple_disco.py` and `simple_wave.py` under examples.
 
 For more information, see [the Fetch Docs][2].
 

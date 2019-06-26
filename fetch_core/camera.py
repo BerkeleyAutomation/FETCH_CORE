@@ -28,9 +28,9 @@ class RGBD(object):
         self.is_updated = False
 
         #rospy.Subscriber(name, data_msg_class, callback)
-        # self.sub_rgb_raw = rospy.Subscriber(topic_name_c, Image, self.callback_rgb_raw)
+        self.sub_rgb_raw = rospy.Subscriber(topic_name_c, Image, self.callback_rgb_raw)
         self.sub_depth_raw = rospy.Subscriber(topic_name_d, Image, self.callback_depth_raw)
-        # self._sub_info        = rospy.Subscriber(topic_name_i, CameraInfo, self._info_cb)
+        self._sub_info        = rospy.Subscriber(topic_name_i, CameraInfo, self._info_cb)
 
 
     def callback_rgb_raw(self, data):
@@ -46,7 +46,21 @@ class RGBD(object):
         try:
             #  self._input_depth_image = self._bridge.imgmsg_to_cv2(
             #         data, desired_encoding="passthrough")
-            self.img_depth_raw = self.bridge.imgmsg_to_cv2(data, "bgr8")
+            self.img_depth_raw = self.bridge.imgmsg_to_cv2(data, '32FC1')
+
+            # could just try to do pass through
+            # Convert the depth image to a Numpy array since most cv2 functions
+            # require Numpy arrays.
+            depth_array = np.array(depth_image, dtype=np.float32)
+            # Normalize the depth image to fall between 0 (black) and 1 (white)
+            cv2.normalize(depth_array, depth_array, 0, 1, cv2.NORM_MINMAX)
+            # At this point you can display the result properly:
+            # cv2.imshow('Depth Image', depth_display_image)
+            # If you write it as it si, the result will be a image with only 0 to 1 values.
+            # To actually store in a this a image like the one we are showing its needed
+            # to reescale the otuput to 255 gray scale.
+            cv2.imwrite('capture_depth.png',frame*255)
+
         except CvBridgeError as e:
             rospy.logerr(e)
 

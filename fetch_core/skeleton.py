@@ -12,7 +12,7 @@ DEG_TO_RAD = np.pi / 180
 from arm import Arm
 from arm_joints import ArmJoints
 from base import Base
-from camera import RGBD
+from camera_msg import RGBD
 from head import Head
 from gripper import Gripper
 from torso import Torso
@@ -91,8 +91,8 @@ class Robot_Skeleton(object):
         Returns:
             Tuple containing RGB camera image and corresponding depth image.
         """
-        c_img = self.camera.read_color_data()
-        d_img = self.camera.read_depth_data()
+        c_img = self.camera.read_color_image()
+        d_img = self.camera.read_depth_image()
         return (c_img, d_img)
 
 

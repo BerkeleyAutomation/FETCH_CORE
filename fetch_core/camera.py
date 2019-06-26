@@ -19,6 +19,8 @@ class RGBD(object):
         topic_name_i = 'head_camera/rgb/camera_info'
         topic_name_d = 'head_camera/depth_registered/image_raw'
 
+        # rostopic list [-s for subscribers] [-p for publishers] [-v verbose]
+
         self.bridge = CvBridge()
         self.img_rgb_raw = None
         self.img_depth_raw = None
@@ -26,14 +28,14 @@ class RGBD(object):
         self.is_updated = False
 
         #rospy.Subscriber(name, data_msg_class, callback)
-        self.sub_rgb_raw = rospy.Subscriber(topic_name_c, Image, self.callback_rgb_raw)
+        # self.sub_rgb_raw = rospy.Subscriber(topic_name_c, Image, self.callback_rgb_raw)
         self.sub_depth_raw = rospy.Subscriber(topic_name_d, Image, self.callback_depth_raw)
         # self._sub_info        = rospy.Subscriber(topic_name_i, CameraInfo, self._info_cb)
 
 
     def callback_rgb_raw(self, data):
         try:
-            img_rgb_raw = self.bridge.imgmsg_to_cv2(data, "bgr8")
+            self.img_rgb_raw = self.bridge.imgmsg_to_cv2(data, "bgr8")
             self.color_time_stamped = data.header.stamp
             self.is_updated = True
         except CvBridgeError as e:
@@ -42,8 +44,9 @@ class RGBD(object):
 
     def callback_depth_raw(self, data):
         try:
-             self._input_depth_image = self._bridge.imgmsg_to_cv2(
-                    data, desired_encoding="passthrough")
+            #  self._input_depth_image = self._bridge.imgmsg_to_cv2(
+            #         data, desired_encoding="passthrough")
+            self.img_depth_raw = self.bridge.imgmsg_to_cv2(data, "bgr8")
         except CvBridgeError as e:
             rospy.logerr(e)
 
@@ -61,6 +64,7 @@ class RGBD(object):
 
     def read_depth_data(self):
         return self.img_depth_raw
+        # return self.img_rgb_raw
 
 
     def read_info_data(self):

@@ -42,6 +42,14 @@ TODOs:
 See `examples/` directory for starter code that we can use for these above
 points.
 
+## SSH access
+
+- The machine to SSH into the fetch is autolab1. It is running Ubuntu 14.04.6 LTS and is located next to triton3.
+- Username: `clothsim`
+- Password: `fetchdisco`
+- Host: `128.32.192.73 -p 4041`
+- make sure that you turn the fetch on as well when you try to ssh into it.
+
 ## Troubleshooting
 
 - Make sure you are on the *Automation* WiFi with `ROS_MASTER_URI` set up

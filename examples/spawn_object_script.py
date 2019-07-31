@@ -6,11 +6,16 @@ import random
 import numpy as np
 import re
 
-LIMIT = {'x':(-0.2, 0.2), 'y':(0.8, 1.2), 'rad':(0, 2*3.14)}
+#LIMIT = {'x':(-0.2, 0.2), 'y':(0.8, 1.2), 'rad':(0, 2*3.14)}
+#Adi: Changing LIMIT for FETCH in Gazebo
+LIMIT = {'x':(0.7, 0.8), 'y':(-0.8, 0.5), 'rad':(0, 0.1)}
+
 
 MODEL_PATH = "/home/adiganapathi/FETCH_CORE/toolbox/"
 
-MODEL_TYPE = {"lightbulb": 1, "gear": 2, "nozzle": 1, "screwdriver": 9, "tape": 2, "barClamp": 1, "combinationWrench": 15, "hammer": 1, "openEndWrench": 3, "socketWrench": 3, "adjustableWrench": 4, "tube": 1, "bottle": 9, "cup": 1, "mug": 3}
+#MODEL_TYPE = {"lightbulb": 1, "gear": 2, "nozzle": 1, "screwdriver": 9, "tape": 2, "barClamp": 1, "combinationWrench": 15, "hammer": 1, "openEndWrench": 3, "socketWrench": 3, "adjustableWrench": 4, "tube": 1, "bottle": 9, "cup": 1, "mug": 3}
+#Adi: Using objects in this FETCH_CORE directory
+MODEL_TYPE = {"tube": 1, "screwdriver": 3, "tape": 2}
 
 
 def setup_delete_spawn_service():
@@ -59,11 +64,12 @@ def spawn_from_uniform(n, spawn_model):
     tags = []
     for i in range(n):
         # item
-        #model_tag = random.choice(MODEL_TYPE.keys())
-        #model_index = random.choice(range(1, MODEL_TYPE[model_tag]+1))
+        model_tag = random.choice(MODEL_TYPE.keys())
+        model_index = random.choice(range(1, MODEL_TYPE[model_tag]+1))
         #model_paint = random.choice(range(5))
-        model_tag = "tube"
-        model_index = 1
+        #Adi: Just testing tube1 here
+        #model_tag = "tape"
+        #model_index = 1
 
         #with open(MODEL_PATH+model_tag+str(model_index)+"_"+str(model_paint)+"/model.sdf", "r") as f:
             #object_xml = f.read()
@@ -73,10 +79,11 @@ def spawn_from_uniform(n, spawn_model):
 
 
         # pose
-        #pt_x = np.random.uniform(LIMIT['x'][0], LIMIT['x'][1])
-        #pt_y = np.random.uniform(LIMIT['y'][0], LIMIT['y'][1])
-        pt_x = 0.7
-        pt_y = 0.0
+        pt_x = np.random.uniform(LIMIT['x'][0], LIMIT['x'][1])
+        pt_y = np.random.uniform(LIMIT['y'][0], LIMIT['y'][1])
+        #Adi: Testing fixed (x,y) locations
+        #pt_x = 0.7
+        #pt_y = 0.0
         ei = np.random.uniform(LIMIT['rad'][0], LIMIT['rad'][1])
         ej = np.random.uniform(LIMIT['rad'][0], LIMIT['rad'][1])
         ek = np.random.uniform(LIMIT['rad'][0], LIMIT['rad'][1])

@@ -21,7 +21,7 @@
       <visual name='visual'>
         <geometry>
           <mesh>
-            <uri>/home/zisu/simulator/siemens_challenge/sim_world/toolbox/screwdriver3.dae</uri>
+		  <uri>/home/adiganapathi/FETCH_CORE/toolbox/screwdriver3.dae</uri>
             <scale>0.1 0.1 0.1</scale>
           </mesh>
         </geometry>

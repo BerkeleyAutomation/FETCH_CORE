@@ -21,7 +21,7 @@
       <visual name='visual'>
         <geometry>
           <mesh>
-            <uri>/home/zisu/simulator/siemens_challenge/sim_world/toolbox/tape1.dae</uri>
+            <uri>/home/adiganapathi/FETCH_CORE/toolbox/tape1.dae</uri>
             <scale>0.1 0.1 0.1</scale>
           </mesh>
         </geometry>

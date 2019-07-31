@@ -1,7 +1,9 @@
 """ Use for basic testing of the Fetch."""
+from PIL import Image
 from fetch_core.skeleton import Robot_Skeleton
 import cv2, os, sys, time, rospy
 import numpy as np
+from matplotlib import pyplot as plt
 DEG_TO_RAD = np.pi / 180
 RAD_TO_DEG = 180 / np.pi
 
@@ -10,9 +12,19 @@ VEL = 0.5
 
 def depth_scaled_to_255(d_img):
     d_img = 255.0/np.max(d_img)*d_img
+    #This for loop is for 3ch
+    #for i in range(3):
+        #d_img[:, :, i] = cv2.equalizeHist(d_img[:, :, i])
+    #This is for grayscale (1ch) depth image
     d_img = np.array(d_img, dtype=np.uint8)
-    for i in range(3):
-        d_img[:, :, i] = cv2.equalizeHist(d_img[:, :, i])
+    cv2.imwrite("d_img_scaled_noeq.png", d_img)
+    d_img = cv2.equalizeHist(d_img)
+    d_img = np.array(d_img, dtype=np.float32)
+
+    d_img = cv2.resize(d_img, (640, 480))
+    #d_img[d_img>150] = 0.0
+    
+        
     return d_img
 
 def depth_to_3ch(d_img, cutoff):
@@ -29,12 +41,33 @@ def depth_to_3ch(d_img, cutoff):
 def basic_camera_grippers():
     # Get some camera images and save them.
     c_img, d_img = robot.get_img_data()
+    d_img = cv2.resize(d_img, (640, 480))
+    np.save('fetch.npy', d_img)
+    import ipdb; ipdb.set_trace()
+
     #print(d_img)
-    d_img = depth_to_3ch(d_img, 1.400)
+    #d_img = depth_to_3ch(d_img, 1.400)
+    c_img = cv2.resize(c_img, (640,480))
+    cv2.imwrite("d_img_unscaled.png", d_img)
     d_img = depth_scaled_to_255(d_img)
-    cv2.line(c_img,(0,0),(320, 240),(255,255,255),15)
+    #print(d_img.shape)
+    #cv2.line(c_img,(0,0),(320, 240),(255,255,255),15)
+    #d_img[:, :245] = 0
+    #d_img[:, 420:] = 0
+    #d_img[:340, :] = 0
+    #d_img[440:, :] = 0
     cv2.imwrite("c_img_0.png", c_img)
     cv2.imwrite("d_img_0.png", d_img)
+    filename = "d_img_0"
+    #img = Image.open(filename + '.png')
+    #data = np.array(img, dtype=np.float32)
+    np.save(filename + '.npy', d_img)
+    d_img = np.load(filename + '.npy')
+    d_img[:, :245] = 0
+    d_img[:, 420:] = 0
+    d_img[:340, :] = 0
+    d_img[440:, :] = 0
+    cv2.imwrite("loaded_img_0.png", d_img)
 
     # Open and close grippers, twice.
     print("now opening and closing grippers!")

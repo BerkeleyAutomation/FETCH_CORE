@@ -3,8 +3,8 @@
 This is our interface for the Fetch.  Partial list of requirements:
 
 - Python 2.7
-- Ubuntu 14.04
-- ROS Indigo
+- Ubuntu 18.04
+- ROS Melodic
 
 Quick start:
 
@@ -44,11 +44,11 @@ points.
 
 ## SSH access
 
-- The machine to SSH into the fetch is autolab1. It is running Ubuntu 14.04.6 LTS and is located next to triton3.
-- Username: `clothsim`
-- Password: `fetchdisco`
-- Host: `128.32.192.73 -p 4041`
-- make sure that you turn the fetch on as well when you try to ssh into it.
+- You can ssh into the fetch from any machine with the default credentials at 
+`fetch@fetch59.local`, password `robotics`. Create your own account and develop 
+in your own home directory (give yourself sudo if necessary). The fetch is only
+on the LAN. Make sure that when using it you have enough space.
+
 
 ## Troubleshooting
 

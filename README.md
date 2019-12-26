@@ -2,11 +2,6 @@
 
 This is our interface for the FETCH robot. Everything that doesn't need a display, including Moveit! can be run on the Fetch.
 
-## DELETE...my todo
-- [ ] *Do I have to update the python version*
-- [ ] *move virtual env on the FETCH over*
-- [ ] *Instructions on how to setup virtual env*
-
 ## Requirements (partial):
 
 We develop locally on our FETCH Robot. All requirements are met locally. **You must setup your own virtual env**. If you need an example, check out `/d/`, `fetch_core` is a virtualenv that works and can be copied into your virtualenv flder. that works. To activate it, use `source ~/virtualenvs/fetch_core/bin/activate`
@@ -49,11 +44,11 @@ on the LAN. Make sure that when using it you have enough space.
 
 ## SSH access
 
-- The machine to SSH into the fetch is autolab1. It is running Ubuntu 14.04.6 LTS and is located next to triton3.
-- Username: `clothsim`
-- Password: `fetchdisco`
-- Host: `128.32.192.73 -p 4041`
-- make sure that you turn the fetch on as well when you try to ssh into it.
+- You can ssh into the fetch from any machine with the default credentials at 
+`fetch@fetch59.local`, password `robotics`. Create your own account and develop 
+in your own home directory (give yourself sudo if necessary). The fetch is only
+on the LAN. Make sure that when using it you have enough space.
+
 
 ## Troubleshooting
 

@@ -9,9 +9,9 @@ DEG_TO_RAD = np.pi / 180
 
 
 if __name__ == "__main__":
-    print("Initializing our robot (this may take about 10 seconds) ...")
+    rospy.loginfo("Initializing our robot (this may take about 10 seconds) ...")
     robot = Robot_Interface(simulation=True)
-    print("Finished initialization!")
+    rospy.loginfo("Finished initialization!")
 
     # Adjust the pose to get it in tucked-in position and (somewhat!) tall.
     robot.body_start_pose()
@@ -22,7 +22,7 @@ if __name__ == "__main__":
     # cv2.imwrite("d_img_0.png", d_img)
 
     # Open and close grippers, twice.
-    print("now opening and closing grippers!")
+    rospy.loginfo("now opening and closing grippers!")
     robot.close_gripper()
     robot.open_gripper()
     robot.close_gripper()
@@ -53,5 +53,5 @@ if __name__ == "__main__":
 
     robot.pan_head(tilt=0.5)
 
-    print("done, just spinning now ...")
+    rospy.loginfo("done, just spinning now ...")
     rospy.spin()

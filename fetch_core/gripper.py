@@ -198,6 +198,7 @@ class Gripper(object):
         quat0 = tf.transformations.quaternion_from_euler(ai=-np.pi/2.0, aj=0.0, ak=0.0)
         quat1 = tf.transformations.quaternion_from_euler(ai=0.0, aj=np.pi/2.0, ak=0.0)
         while True:
+            # TODO: line 205 is causing an unhandled exception/closedtopic publish error
             self.br.sendTransform(position,
                                   quat0,
                                   rospy.Time.now(),

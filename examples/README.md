@@ -33,6 +33,7 @@ Tests, roughly in order of newest to oldest (an `ri` in the name means it's usin
 - `test_movement_heuristics.py`: should test heuristics for moving the base of
   the robot in case we can't grasp something from the Fetch's current position. 
 
+<<<<<<< HEAD
 ### `motion_planning/`
 
 Example `lienar_joint_trajectory` script that simplifies all the classes in `../fetch_core/` files. Details can be found in comments throughout the `linear_joint_trajetories.py` file.

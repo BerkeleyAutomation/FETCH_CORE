@@ -116,7 +116,6 @@ if __name__ == "__main__":
     rospy.loginfo("Initializing our robot (this may take about 10 seconds) ...")
     robot = Robot_Interface()
     robot.body_start_pose()
-    #get_to_start(robot)
 
     # Tested
     #test_sequence_rotations(robot)

@@ -98,20 +98,22 @@ class Gripper(object):
         return trans,quat
 
 
-    def create_grasp_pose(self, x, y, z, rot):
+    def create_grasp_pose(self, x, y, z, rot, use_world_frame=False, world_coordinates=None):
         """Broadcast given pose and return its name. Used for Siemens challenge.
 
         Args: 
             x,y,z,rot: all are scalars representing the pose, with `rot` as the
                 rotation about the z-axis (in _radians_).
         """
-        self.broadcast_poses([x,y,z], rot)
+        #Adi: Commenting this out and using new line for now
+        #self.broadcast_poses([x,y,z], rot)
+        self.broadcast_poses([x,y,z], rot, use_world_frame=use_world_frame, world_coordinates=world_coordinates)
         grasp_name = 'grasp_'+str(self.count)
         self.count += 1
         return grasp_name
 
 
-    def broadcast_poses(self, position, rot):
+    def broadcast_poses(self, position, rot, use_world_frame, world_coordinates):
         """Broadcast pose, for Siemens challenge,
         
         TODO: figure out unit of depth image: if meters do nothing
@@ -127,11 +129,13 @@ class Gripper(object):
         b = tf.transformations.quaternion_from_euler(
                 ai=0.0, aj=0.0, ak=1.57)
         base_rot = tf.transformations.quaternion_multiply(a,b)
-        thread.start_new_thread(self.loop_broadcast,(norm_pose,base_rot,rot))
+        #Adi: Commenting this out and using new line for now
+        #thread.start_new_thread(self.loop_broadcast,(norm_pose,base_rot,rot))
+        thread.start_new_thread(self.loop_broadcast,(norm_pose,base_rot,rot,use_world_frame,world_coordinates))
         rospy.sleep(1.0)
 
 
-    def loop_broadcast(self, norm_pose, base_rot, rot_z):
+    def loop_broadcast(self, norm_pose, base_rot, rot_z, use_world_frame, world_coordinates):
         """Loop pose, used for Siemens challenge.
         
         TODO: figure out what to put as config, test this out.
@@ -143,6 +147,15 @@ class Gripper(object):
             has offset for which the gripper can then "move forward" a bit
         """
         norm_pose,rot = self.compute_trans_to_map(norm_pose,base_rot)
+        #Adi: Let's offset the z coordinate 
+        #Need to calculate the offset based on the current torso height and depth value
+        norm_pose[2] += 0.25 
+        print("Printing World Coordinates!:")
+        print(norm_pose) #Adi: I think this is the point in the map (world) frame that we are trying to grasp at
+        #norm_pose = [0.64364554, 0.40790289, 0.26959194]
+        #Adi: Added this so that we can just directly pass in world coordinates
+        if use_world_frame:
+            norm_pose = world_coordinates
         count = np.copy(self.count)
 
         while True:
@@ -202,7 +215,7 @@ class Gripper(object):
                                   quat0,
                                   rospy.Time.now(),
                                   'fake_head1',
-                                  'head_camera_rgb_frame')
+                                  'fake_head2')
             self.br.sendTransform(position,
                                   quat1,
                                   rospy.Time.now(),

@@ -49,13 +49,13 @@ def grab_item():
 if __name__ == "__main__":
     robot = Robot_Skeleton()
     # set torso height high to start to hopefully avoid collisions with base
-    robot.body_start_pose(start_height=0.25, end_height=0.25, velocity_factor=VEL)
     robot.head_start_pose(pan=0.0, tilt=0.0)
+    robot.body_start_pose()
     rospy.loginfo("Finished robot body and head start poses.")
-    robot.close_gripper(width=0.04)
+    #robot.close_gripper(width=0.04)
     robot.open_gripper()
 
     grab_item()
 
-    print("done, just spinning now ...")
+    rospy.loginfo("done, just spinning now ...")
     rospy.spin()

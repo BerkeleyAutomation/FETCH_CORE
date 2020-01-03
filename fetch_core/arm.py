@@ -16,7 +16,9 @@ from moveit_msgs.srv import GetPositionIK, GetPositionIKRequest
 from tf.listener import TransformListener
 
 ARM_GROUP_NAME = 'arm'
-JOINT_ACTION_SERVER = 'arm_controller/follow_joint_trajectory'
+#Adi: Need to use arm and torso for linear joint trajectories
+#JOINT_ACTION_SERVER = 'arm_controller/follow_joint_trajectory'
+JOINT_ACTION_SERVER = 'arm_with_torso_controller/follow_joint_trajectory'
 MOVE_GROUP_ACTION_SERVER = 'move_group'
 TIME_FROM_START = 5
 
@@ -102,6 +104,23 @@ class Arm(object):
         self._compute_ik = rospy.ServiceProxy('compute_ik', GetPositionIK)
         self._tf_listener = TransformListener()
 
+    def move_to_waypoints(self, waypoints, t):
+        goal = control_msgs.msg.FollowJointTrajectoryGoal()
+        goal.trajectory.joint_names.extend(['torso_lift_joint'] + ArmJoints.names())
+        #goal.trajectory.joint_names.extend(ArmJoints.names())
+        for i, w in enumerate(waypoints):
+            point = trajectory_msgs.msg.JointTrajectoryPoint()
+            goal.trajectory.points.append(point)
+            goal.trajectory.points[i].time_from_start = rospy.Duration(t[i])
+            for j, p in enumerate(waypoints[i]):
+                goal.trajectory.points[i].positions.append(waypoints[i][j])
+                goal.trajectory.points[i].velocities.append(0.0)
+                goal.trajectory.points[i].accelerations.append(0.0)
+        self._joint_client.send_goal(goal)
+        self._joint_client.wait_for_result(rospy.Duration(10))
+
+
+
     def move_to_joints(self, joint_state):
         goal = control_msgs.msg.FollowJointTrajectoryGoal()
         goal.trajectory.joint_names.extend(ArmJoints.names())
@@ -112,8 +131,10 @@ class Arm(object):
         self._joint_client.send_goal(goal)
         self._joint_client.wait_for_result(rospy.Duration(10))
 
+    #Adi: This is what is used for move it planning I think
     def move_to_joint_goal(self,
-                           joints,
+                           joint_names,
+                           joint_positions,
                            allowed_planning_time=10.0,
                            execution_timeout=15.0,
                            group_name='arm',
@@ -148,8 +169,14 @@ class Arm(object):
         Returns:
             string describing the error if an error occurred, else None.
         """
+        #Adi: Sanity print statement
+        print("PLANNING NOW!!!!")
+        print(joint_names)
+        print(joint_positions)
+        
+
         goal_builder = MoveItGoalBuilder()
-        goal_builder.set_joint_goal(*zip(*joints))
+        goal_builder.set_joint_goal(joint_names, joint_positions)
         goal_builder.allowed_planning_time = allowed_planning_time
         goal_builder.num_planning_attempts = num_planning_attempts
         goal_builder.plan_only = plan_only
@@ -174,6 +201,7 @@ class Arm(object):
         else:
             return moveit_error_string(MoveItErrorCodes.TIMED_OUT)
 
+    #Adi: Changed allowed planning time from 10 seconds to 20 seconds
     def move_to_pose(self,
                      pose_stamped,
                      allowed_planning_time=10.0,
@@ -213,6 +241,16 @@ class Arm(object):
         Returns:
             string describing the error if an error occurred, else None.
         """
+        #Adi: Sanity print statements and parameters
+        print("PLANNING NOW!!!")
+        #allowed_planning_time = 100.0
+        #execution_timeout = 1000.0
+        #group_name = 'arm_with_torso'
+        #num_planning_attempts = 1000
+        #replan = True
+        #replan_attempts = 100
+        print(pose_stamped)
+
         goal_builder = MoveItGoalBuilder()
         goal_builder.set_pose_goal(pose_stamped)
         if orientation_constraint is not None:

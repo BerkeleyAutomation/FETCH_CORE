@@ -22,13 +22,15 @@ using an alternative "skeleton" interface, `robot_interface.py`):
   tricky part is getting the object `.sdf` files to be system-independent when
   discussing its paths.
 
+- `test_movement_heuristics.py`: should test heuristics for moving the base of
+  the robot in case we can't grasp something from the Fetch's current position. 
+
 **Still TODO**:
 
 - `test_camera_to_world.py`: should develop test cases for when the robot goes
   to a pose which was initially specified by its camera coordinates.
 
-- `test_movement_heuristics.py`: should test heuristics for moving the base of
-  the robot in case we can't grasp something from the Fetch's current position.
+
 
 # How to Move Downwards with the Skeleton Code
 

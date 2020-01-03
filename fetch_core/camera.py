@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 import argparse, cv2, math, os, rospy, sys, threading, time
 from pprint import pprint
-import numpy as np
-from sensor_msgs.msg import Image, PointCloud2, CameraInfo, JointState
+from sensor_msgs.msg import CameraInfo, Image, JointState, PointCloud2
 from cv_bridge import CvBridge, CvBridgeError
 
 import tf
@@ -15,38 +14,48 @@ import IPython
 class RGBD(object):
 
     def __init__(self):
-        # rostopic list [-s for subscribers] [-p for publishers] [-v verbose]
-        self.bridge = CvBridge()
-        self.img_rgb_raw = None
-        self.img_depth_raw = None
-        self.info = None
+        """Similar to the HSR version, but with Fetch topic names."""
+        topic_name_c = 'head_camera/rgb/image_raw'
+        topic_name_i = 'head_camera/rgb/camera_info'
+        #Simulation:
+        topic_name_d = 'head_camera/depth_registered/image_raw'
+        #Physical Robot
+        #topic_name_d = 'head_camera/depth/image_raw'
+
+        self._bridge = CvBridge()
+        self._input_color_image = None
+        self._input_depth_image = None
+        self._info = None
         self.is_updated = False
 
-        # rospy.Subscriber(name, data_msg_class, callback)
-        # Use `rqt_image_view` to see a interactive GUI of the possible rostopics
-        
-        self.sub_rgb_raw = rospy.Subscriber('head_camera/rgb/image_raw', Image, self.callback_rgb_raw)
-        self.sub_depth_raw = rospy.Subscriber("head_camera/depth/image_raw", Image, self.callback_depth_raw)
-        self._sub_info = rospy.Subscriber("head_camera/rgb/camera_info", CameraInfo, self.callback_cam_info)
+        self._sub_color_image = rospy.Subscriber(topic_name_c, Image, self._color_image_cb)
+        self._sub_depth_image = rospy.Subscriber(topic_name_d, Image, self._depth_image_cb)
+        self._sub_info        = rospy.Subscriber(topic_name_i, CameraInfo, self._info_cb)
 
-    def callback_rgb_raw(self, data):
+
+    def _color_image_cb(self, data):
         try:
-            self.img_rgb_raw = self.bridge.imgmsg_to_cv2(data, "bgr8")
+            self._input_color_image = self._bridge.imgmsg_to_cv2(data, "bgr8")
             self.color_time_stamped = data.header.stamp
             self.is_updated = True
-        except CvBridgeError as e:
-            rospy.logerr(e)
-            print(e)
+        except CvBridgeError as cv_bridge_exception:
+            rospy.logerr(cv_bridge_exception)
 
-    def callback_depth_raw(self, data):
+
+    def _depth_image_cb(self, data):
         try:
-            # you do not need to anything more than this to get the depth imgmsg as a cv2
-            # make sure that you are using the right encoding
-            self.img_depth_raw = self.bridge.imgmsg_to_cv2(data, '32FC1')
-        except CvBridgeError as e:
-            rospy.logerr(e)
+            #Simulation
+            self._input_depth_image = self._bridge.imgmsg_to_cv2(
+                    data, desired_encoding="passthrough")
+            #Physical Robot
+            #self._input_depth_image = self._bridge.imgmsg_to_cv2(
+            #        data, "32FC1")
 
-    def callback_cam_info(self,data):
+        except CvBridgeError as cv_bridge_exception:
+            rospy.logerr(cv_bridge_exception)
+
+
+    def _info_cb(self,data):
         try:
             self._info = data
         except CvBridgeError as cv_bridge_exception:
@@ -54,12 +63,11 @@ class RGBD(object):
 
 
     def read_color_data(self):
-        return self.img_rgb_raw
+        return self._input_color_image
 
 
     def read_depth_data(self):
-        return self.img_depth_raw
-        # return self.img_rgb_raw
+        return self._input_depth_image
 
 
     def read_info_data(self):

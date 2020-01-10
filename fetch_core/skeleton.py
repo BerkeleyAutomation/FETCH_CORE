@@ -41,7 +41,11 @@ class Robot_Skeleton(object):
 
         # Tucked arm starting joint angle configuration
         self.names = ArmJoints().names()
-        self.tucked = [1.3200, 1.3999, -0.1998, 1.7199, 0.0, 1.6600, 0.0]
+        #Adi: Making a new self.tucked for Jeff ICRA
+        #self.tucked = [0.100000001490116, 1.57079637050629, 1.57079637050629, 0, 1.57079637050629, 0, 1.57079637050629, 0]
+        #self.tucked = [1.3200, 1.3999, -0.1998, 1.7199, 0.0, 1.6600, 0.0]
+        #Adi: Starting position for part 2
+        self.tucked = [0.18132, 0.249076, 0.153913, 1.47009, 1.48902, -0.125871, -1.74715, -1.45724]
         self.tucked_list = [(x,y) for (x,y) in zip(self.names, self.tucked)]
 
         # Initial (x,y,yaw) position of the robot wrt map origin. We keep this
@@ -107,7 +111,17 @@ class Robot_Skeleton(object):
         return pose_name
 
 
-    def move_to_pose(self, pose_name, velocity_factor=None):
+    def move_to_pose(self, pose_name, 
+                     allowed_planning_time=10.0,
+                     execution_timeout=15.0,
+                     group_name='arm',
+                     num_planning_attempts=1,
+                     orientation_constraint=None,
+                     plan_only=False,
+                     replan=False,
+                     replan_attempts=5,
+                     tolerance=0.01,
+                     velocity_factor=None):
         """Moves to a pose.
  
         In the HSR, moved the `hand_palm_link` to the frame named `pose_name` at
@@ -137,7 +151,17 @@ class Robot_Skeleton(object):
         )
 
         # See `arm.py` written by Justin Huang
-        error = self.arm.move_to_pose(pose_stamped=ps, velocity_factor=velocity_factor)
+        error = self.arm.move_to_pose(pose_stamped=ps, 
+                     allowed_planning_time=allowed_planning_time,
+                     execution_timeout=execution_timeout,
+                     group_name=group_name,
+                     num_planning_attempts=num_planning_attempts,
+                     orientation_constraint=orientation_constraint,
+                     plan_only=plan_only,
+                     replan=replan,
+                     replan_attempts=replan_attempts,
+                     tolerance=tolerance,
+                     velocity_factor=velocity_factor)
         if error is not None:
             rospy.logerr(error)
 

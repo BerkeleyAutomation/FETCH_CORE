@@ -16,6 +16,8 @@ from moveit_msgs.srv import GetPositionIK, GetPositionIKRequest
 from tf.listener import TransformListener
 
 ARM_GROUP_NAME = 'arm'
+#Adi: Need to use arm and torso for linear joint trajectories
+#JOINT_ACTION_SERVER = 'arm_controller/follow_joint_trajectory'
 JOINT_ACTION_SERVER = 'arm_controller/follow_joint_trajectory'
 MOVE_GROUP_ACTION_SERVER = 'move_group'
 TIME_FROM_START = 5

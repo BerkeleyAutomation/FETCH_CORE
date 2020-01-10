@@ -1,0 +1,7 @@
+# install sip first from https://riverbankcomputing.com/software/sip/download
+# python configure.py; make; sudo make install
+ipython
+opencv-python
+rospkg
+pyyaml
+numpy

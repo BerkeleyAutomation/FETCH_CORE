@@ -21,7 +21,7 @@ def calculate_optimal_dts(waypoints):
 
 
 if __name__ == "__main__":
-    robot = Robot_Skeleton()
+    robot = Robot_mpanna()
     robot.body_start_pose(start_height=0.18132, end_height=0.18132, velocity_factor=0.4)
     rospy.loginfo("Finished robot starting config.")
     robot.close_gripper(width=0.04)

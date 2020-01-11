@@ -12,7 +12,7 @@ import numpy as np
 from arm import Arm
 from arm_joints import ArmJoints
 from base import Base
-# from camera import RGBD
+from camera import RGBD
 # from head import Head
 from gripper import Gripper
 from torso import Torso
@@ -43,6 +43,7 @@ class Robot_mpanna(object):
         """
         rospy.init_node("fetch")
         self.arm = Arm()
+        self.camera = RGBD()
         self.arm_joints = ArmJoints()
         self.base = Base()
         self.gripper = Gripper(self.camera)
@@ -52,7 +53,7 @@ class Robot_mpanna(object):
         # Tucked arm starting joint angle configuration
         self.names = ArmJoints().names()
         self.tucked = [1.3200, 1.3999, -0.1998, 1.7199, 0.0, 1.6600, 0.0]
-        self.tucked_list = [zip(self.names, self.tucked)]
+        #self.tucked_list = [zip(self.names, self.tucked)]
 
         # Initial (x,y,yaw) position of the robot wrt map origin. We keep this
         # fixed so that we can reset to this position as needed. The HSR's
@@ -75,7 +76,7 @@ class Robot_mpanna(object):
         motion planning. Do NOT directly set the joints without planning!!
         """
         self.torso.set_height(start_height)
-        self.arm.move_to_joint_goal(self.tucked_list, velocity_factor=velocity_factor)
+        self.arm.move_to_joint_goal(joint_names=self.names, joint_positions=self.tucked,  velocity_factor=velocity_factor)
         self.torso.set_height(end_height)
         # Specific to the siemens challenge (actually a lot of this stuff is ...)
         # if self.num_restarts == 0:

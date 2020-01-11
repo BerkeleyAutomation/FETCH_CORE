@@ -43,7 +43,6 @@ Example `lienar_joint_trajectory` script that simplifies all the classes in `../
   to a pose which was initially specified by its camera coordinates.
 
 
-
 ## How to Move Downwards with the Skeleton Code
 
 To make the robot move downwards with `test_basics.py` we can create a pose at

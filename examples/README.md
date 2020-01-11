@@ -32,6 +32,7 @@ Tests, roughly in order of newest to oldest (an `ri` in the name means it's usin
 
 - `test_movement_heuristics.py`: should test heuristics for moving the base of
   the robot in case we can't grasp something from the Fetch's current position. 
+<<<<<<< HEAD
   
 ### `motion_planning/`
 

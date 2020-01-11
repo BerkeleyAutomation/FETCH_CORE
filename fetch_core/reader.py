@@ -24,7 +24,6 @@ class JointStateReader(object):
                 continue
             self._joint_states[name] = msg.position[i]
 
-        # Jackson: logs the joint states
         # rospy.loginfo(self._joint_states)
 
     def get_joint(self, name):

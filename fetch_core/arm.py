@@ -169,12 +169,8 @@ class Arm(object):
         Returns:
             string describing the error if an error occurred, else None.
         """
-        #Adi: Sanity print statement
-        print("PLANNING NOW!!!!")
-        print(joint_names)
-        print(joint_positions)
         
-
+        print("PLANNING NOW!!!!")
         goal_builder = MoveItGoalBuilder()
         goal_builder.set_joint_goal(joint_names, joint_positions)
         goal_builder.allowed_planning_time = allowed_planning_time

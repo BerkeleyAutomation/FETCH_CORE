@@ -171,6 +171,7 @@ class Arm(object):
         """
         
         print("PLANNING NOW!!!!")
+
         goal_builder = MoveItGoalBuilder()
         goal_builder.set_joint_goal(joint_names, joint_positions)
         goal_builder.allowed_planning_time = allowed_planning_time

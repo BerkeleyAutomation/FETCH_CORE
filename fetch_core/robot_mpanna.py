@@ -13,7 +13,7 @@ from arm import Arm
 from arm_joints import ArmJoints
 from base import Base
 from camera import RGBD
-# from head import Head
+from head import Head
 from gripper import Gripper
 from torso import Torso
 from reader import JointStateReader
@@ -46,6 +46,7 @@ class Robot_mpanna(object):
         self.camera = RGBD()
         self.arm_joints = ArmJoints()
         self.base = Base()
+        self.head = Head()
         self.gripper = Gripper(self.camera)
         self.torso = Torso()
         self.joint_reader = JointStateReader()

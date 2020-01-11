@@ -47,13 +47,15 @@ if __name__ == "__main__":
             [0.321149998853303, 0.463906174175092, 0.500539230782487, -6.28955442886448, 1.89185687754133, -2.7554084440073, 0.926088066446906, 2.06804546797355],
             [0.329099219075529, 0.174213246266179, 1.05811081186774, -10.0336779258358, 1.35928353626556, -1.22300351166094, -1.28255428407097, 4.49824258148513]]
     
-    s = waypoints[:len(s)-1:-1] #all but the top waypoint (so the last one in the initial waypoints list)
+    # Brings it back in reverse to the same waypoints
+    s = waypoints[::-1] #all but the top waypoint (so the last one in the initial waypoints list)
     waypoints.extend(s)
-    #Adi: UNCOMMENT NEXT LINE IF RUNNING PART 2
-    #waypoints[-1] = [0.100000001490116, 1.57079637050629, 1.57079637050629, 0, 1.57079637050629, 0, 1.57079637050629, 0]
-    # everything in waypoints is scaled by 5?
+    
+    everything in waypoints is scaled by 5?
     t = [5*i for i, w in enumerate(waypoints)]
     if fast:
         t = calculate_optimal_dts(waypoints)
+
+    print(t)
 
     execute_waypoints_trajectory(waypoints, t)

@@ -215,7 +215,7 @@ class Gripper(object):
                                   quat0,
                                   rospy.Time.now(),
                                   'fake_head1',
-                                  'head_camera_rgb_frame')
+                                  'fake_head2')
             self.br.sendTransform(position,
                                   quat1,
                                   rospy.Time.now(),

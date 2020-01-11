@@ -24,7 +24,7 @@ if __name__ == "__main__":
     robot = Robot_mpanna()
     robot.body_start_pose(start_height=0.18132, end_height=0.18132, velocity_factor=0.4)
     rospy.loginfo("Finished robot starting config.")
-    robot.close_gripper(width=0.04)
+    robot.close_gripper()
     robot.open_gripper()
     rospy.loginfo("Getting Starting Joint States")
     starting_joint_states = robot.joint_reader.get_joints(['torso_lift_joint', 'shoulder_pan_joint', 'shoulder_lift_joint', 'upperarm_roll_joint', 'elbow_flex_joint', 'forearm_roll_joint', 'wrist_flex_joint', 'wrist_roll_joint'])

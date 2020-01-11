@@ -17,11 +17,15 @@ class JointStateReader(object):
             self._callback)
         self._joint_states = {}
 
+    # Global method callback
     def _callback(self, msg):
         for i, name in enumerate(msg.name):
             if i >= len(msg.position):
                 continue
             self._joint_states[name] = msg.position[i]
+
+        # Jackson: logs the joint states
+        rospy.loginfo(self._joint_states)
 
     def get_joint(self, name):
         """Gets the latest joint value.
@@ -31,10 +35,7 @@ class JointStateReader(object):
 
         Returns: the joint value, or None if we do not have a value yet.
         """
-        if name in self._joint_states:
-            return self._joint_states[name]
-        else:
-            return None
+        return self._joint_states[name] if name in self._joint_states else None
 
     def get_joints(self, names):
         """Gets the latest values for a list of joint names.

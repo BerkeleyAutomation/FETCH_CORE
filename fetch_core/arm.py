@@ -133,7 +133,8 @@ class Arm(object):
 
     #Adi: This is what is used for move it planning I think
     def move_to_joint_goal(self,
-                           joints,
+                           joint_names,
+                           joint_positions,
                            allowed_planning_time=10.0,
                            execution_timeout=15.0,
                            group_name='arm',
@@ -169,9 +170,13 @@ class Arm(object):
             string describing the error if an error occurred, else None.
         """
         #Adi: Sanity print statement
-        #print("PLANNING NOW!!!!")
+        print("PLANNING NOW!!!!")
+        print(joint_names)
+        print(joint_positions)
+        
+
         goal_builder = MoveItGoalBuilder()
-        goal_builder.set_joint_goal(*zip(*joints))
+        goal_builder.set_joint_goal(joint_names, joint_positions)
         goal_builder.allowed_planning_time = allowed_planning_time
         goal_builder.num_planning_attempts = num_planning_attempts
         goal_builder.plan_only = plan_only

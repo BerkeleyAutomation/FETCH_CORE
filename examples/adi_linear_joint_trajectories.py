@@ -1,4 +1,5 @@
 from fetch_core.robot_mpanna import Robot_mpanna
+from moveit_python import PlanningSceneInterface
 import cv2, os, sys, time, rospy
 import numpy as np
 
@@ -7,6 +8,23 @@ MAX_JOINT_VEL = np.array([0.1, 1.25, 1.45, 1.57, 1.52, 1.57, 2.26, 2.26])
 #MAX_JOINT_VEL = MAX_JOINT_VEL / 1.5
 def execute_waypoints_trajectory(waypoints, t):
     robot.arm.move_to_waypoints(waypoints, t)
+
+def setBoundaries():
+    '''
+    This is a fix for the FETCH colliding with itself
+    Define ground plane
+    This creates objects in the planning scene that mimic the ground
+    If these were not in place gripper could hit the ground
+    '''
+    planning_scene = PlanningSceneInterface("base_link")
+    planning_scene.removeCollisionObject("my_front_ground")
+    planning_scene.removeCollisionObject("my_back_ground")
+    planning_scene.removeCollisionObject("my_right_ground")
+    planning_scene.removeCollisionObject("my_left_ground")
+    planning_scene.addCube("my_front_ground", 2, 1.1, 0.0, -1.0)
+    planning_scene.addCube("my_back_ground", 2, -1.2, 0.0, -1.0)
+    planning_scene.addCube("my_left_ground", 2, 0.0, 1.2, -1.0)
+    planning_scene.addCube("my_right_ground", 2, 0.0, -1.2, -1.0)
 
 def calc_dt(q1, q0):
     return (15.0*np.absolute(np.subtract(q1, q0))) / (8.0*MAX_JOINT_VEL)
@@ -22,7 +40,9 @@ def calculate_optimal_dts(waypoints):
 
 if __name__ == "__main__":
     robot = Robot_mpanna()
-    robot.body_start_pose(start_height=0.18132, end_height=0.18132, velocity_factor=0.4)
+    # Sets boundaries to avoid self-collision
+    setBoundaries()
+    robot.body_start_pose(start_height=0.15, end_height=0.15, velocity_factor=0.4)
     rospy.loginfo("Finished robot starting config")
     robot.close_gripper()
     robot.open_gripper()
@@ -51,11 +71,9 @@ if __name__ == "__main__":
     s = waypoints[::-1] #all but the top waypoint (so the last one in the initial waypoints list)
     waypoints.extend(s)
     
-    everything in waypoints is scaled by 5?
-    t = [5*i for i, w in enumerate(waypoints)]
-    if fast:
-        t = calculate_optimal_dts(waypoints)
-
-    print(t)
+    # Jackson: Optimal DTS is working
+    
+    t = calculate_optimal_dts(waypoints) if fast else [5*i for i, w in enumerate(waypoints)]
+    print("optimal dts? " + str(fast) + ": " + str(t))
 
     execute_waypoints_trajectory(waypoints, t)

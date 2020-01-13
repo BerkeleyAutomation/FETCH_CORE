@@ -26,39 +26,39 @@ def execute_waypoints_trajectory(waypoints, t):
         t: [TODO] Jackson: I don't understand what t is
 
     '''
-        goal = FollowJointTrajectoryGoal()
-        goal.trajectory.joint_names.extend(['torso_lift_joint'] + ARM_JOINT_NAMES)
-        for i, w in enumerate(waypoints):
-            point = JointTrajectoryPoint()
-            goal.trajectory.points.append(point)
-            goal.trajectory.points[i].time_from_start = rospy.Duration(t[i])
-            for j, p in enumerate(waypoints[i]):
-                goal.trajectory.points[i].positions.append(waypoints[i][j])
-                goal.trajectory.points[i].velocities.append(0.0)
-                goal.trajectory.points[i].accelerations.append(0.0)
-        _joint_client.send_goal(goal)
-        _joint_client.wait_for_result(rospy.Duration(10))
+    goal = FollowJointTrajectoryGoal()
+    goal.trajectory.joint_names.extend(['torso_lift_joint'] + ARM_JOINT_NAMES)
+    for i, w in enumerate(waypoints):
+        point = JointTrajectoryPoint()
+        goal.trajectory.points.append(point)
+        goal.trajectory.points[i].time_from_start = rospy.Duration(t[i])
+        for j, p in enumerate(waypoints[i]):
+            goal.trajectory.points[i].positions.append(waypoints[i][j])
+            goal.trajectory.points[i].velocities.append(0.0)
+            goal.trajectory.points[i].accelerations.append(0.0)
+    _joint_client.send_goal(goal)
+    _joint_client.wait_for_result(rospy.Duration(10))
 
 def set_torso_height(height):
-        """Sets the torso height.
+    """Sets the torso height.
 
-        This will always take ~5 seconds to execute.
+    This will always take ~5 seconds to execute.
 
-        Args:
-            height: The height, in meters, to set the torso to. Values range
-                from Torso.MIN_HEIGHT (0.0) to Torso.MAX_HEIGHT(0.4).
-        """
-        height = height if height <= 0.4 and height >= 0.0 else 0.0
+    Args:
+        height: The height, in meters, to set the torso to. Values range
+            from Torso.MIN_HEIGHT (0.0) to Torso.MAX_HEIGHT(0.4).
+    """
+    height = height if height <= 0.4 and height >= 0.0 else 0.0
 
-        goal = FollowJointTrajectoryGoal()
-        goal.trajectory.joint_names.append('torso_lift_joint')
-        point = JointTrajectoryPoint()
-        point.positions.append(height)
-        point.time_from_start = rospy.Duration(5)
-        goal.trajectory.points.append(point)
-        _torso_client.send_goal(goal)
-        # Give it 10 seconds to respond with result
-        _torso_client.wait_for_result(timeout=rospy.Duration(10))
+    goal = FollowJointTrajectoryGoal()
+    goal.trajectory.joint_names.append('torso_lift_joint')
+    point = JointTrajectoryPoint()
+    point.positions.append(height)
+    point.time_from_start = rospy.Duration(5)
+    goal.trajectory.points.append(point)
+    _torso_client.send_goal(goal)
+    # Give it 10 seconds to respond with result
+    _torso_client.wait_for_result(timeout=rospy.Duration(10))
 
 # TODO: @Adi can you help me detail `calc_dt` and `calculate_optimal_dts` with comments
 
@@ -92,16 +92,16 @@ def get_current_joint_states():
     return _joint_states
 
 def get_joints(self, names):
-        """Gets the latest values for a list of joint names.
+    """Gets the latest values for a list of joint names.
 
-        Args:
-            name: list of strings, the names of the joints whose values we want
-                to read.
+    Args:
+        name: list of strings, the names of the joints whose values we want
+            to read.
 
-        Returns: A list of the joint values. Values may be None if we do not
-            have a value for that joint yet.
-        """
-        return [self.get_joint(name) for name in names]
+    Returns: A list of the joint values. Values may be None if we do not
+        have a value for that joint yet.
+    """
+    return [self.get_joint(name) for name in names]
 
 if __name__ == "__main__":
     '''

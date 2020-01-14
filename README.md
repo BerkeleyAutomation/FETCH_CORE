@@ -1,22 +1,31 @@
 # FETCH_CORE
 
-This is our interface for the Fetch.  Partial list of requirements:
+This is our interface for the FETCH robot. Everything that doesn't need a display, including Moveit! can be run on the Fetch.
 
-- Python 2.7
+## DELETE...my todo
+- [ ] *Do I have to update the python version*
+- [ ] *move virtual env on the FETCH over*
+- [ ] *Instructions on how to setup virtual env*
+
+## Requirements (partial):
+
+We develop locally on our FETCH Robot. All requirements are met locally. **You must setup your own virtual env**. If you need an example, check out `/d/`, `fetch_core` is a virtualenv that works and can be copied into your virtualenv flder. that works. To activate it, use `source ~/virtualenvs/fetch_core/bin/activate`
+
+
+- Python 2.7.15
 - Ubuntu 18.04
 - ROS Melodic
 
-Quick start:
+## Quick Start
 
-- Install via `python setup.py develop`, so that you can change
-  code here and see the updates immediately reflected rather than
-  re-installing the package.
+### Current Tutorial
+1. Begin by following the [official installation instructions](http://wiki.ros.org/melodic/Installation/Ubuntu). To validate your installation, run the [validation scripts from the FETCH repo](https://docs.fetchrobotics.com/indigo_to_melodic.html#post-install-validation). Make sure you go over the [robot hardware](https://docs.fetchrobotics.com/robot_hardware.html#mechanism-terminology) and [API][1] before starting to use the robot.
+2.  Try to teleoperate your robot! First run `export ROS_MASTER_URI=http://<robot_name_or_ip>:11311` and then `rosrun teleop_twist_keyboard teleop_twist_keyboard.py`.
+3. Once your environment is setup. It should as simple as finding the script you want to run under `examples/` and executing `python SCRIPT-NAME.py`. If the script uses Moveit! as a library for motion planning, run `roslaunch fetch_moveit_config move_group.launch` in a seperate terminal window or tty.
 
-- Use the skeleton code provided in `fetch_core/skeleton.py`. This provides
-  minimum functionality to access all relevant parts of the code. For the
-  Siemens challenge ([repository here][1]), we used a different skeleton class,
-  `fetch_core/robot_interface.py`, which has some hard-coded base and head
-  tilting for the challenge, but don't use that. 
+### Daniel - Depreciated Tutorial
+
+- [(DEPRECIATED) Daniel, Seimens Challenge] Use the skeleton code provided in `fetch_core/skeleton.py`. This provides minimum functionality to access all relevant parts of the code. For the Siemens challenge ([repository here][1]), we used a different skeleton class, `fetch_core/robot_interface.py`, which has some hard-coded base and head tilting for the challenge, but don't use that.
 
 - Start off by using code similar to `examples/test_skeleton.py` which will give
   you an overview of common code usage. The `examples/` directory has other
@@ -24,23 +33,11 @@ Quick start:
 
 TODOs:
 
-- [ ] Develop simple test cases where we specify camera coordinates for a robot's
-  gripper to go to, ideally by simply drawing a bounding box around a set of
-  image pixels.  Then this will test if camera-to-workspace is succeeding. There
-  isn't a clean test case for this, and the closest is based on the Siemens
-  challenge code in tandem with `fetch_core/robot_interface.py` and
-  `fetch_core/gripper.py`.
+- [ ] Develop simple test cases where we specify camera coordinates for a robot's gripper to go to, ideally by simply drawing a bounding box around a set of image pixels.  Then this will test if camera-to-workspace is succeeding. There isn't a clean test case for this, and the closest is based on the Siemens challenge code in tandem with `fetch_core/robot_interface.py` and `fetch_core/gripper.py`.
 
-- [ ] It is not possible (or at least, *very* difficult) to do planning with the
-  arms *and* the base simultaneously with the Fetch using MoveIt. Thus, we can't
-  do the base planning like the HSR does, which means the quickest solution is
-  to develop a heuristic: if the robot's Inverse Kinematics (IK) do not find a
-  solution for the arm, then we can run IK by assuming that the base is located
-  at a different spot (e.g., 0.01 meters forward), and keep trying different
-  locations.
+- [ ] It is not possible (or at least, *very* difficult) to do planning with the arms *and* the base simultaneously with the Fetch using MoveIt. Thus, we can't do the base planning like the HSR does, which means the quickest solution is to develop a heuristic: if the robot's Inverse Kinematics (IK) do not find a solution for the arm, then we can run IK by assuming that the base is located at a different spot (e.g., 0.01 meters forward), and keep trying different locations.
 
-See `examples/` directory for starter code that we can use for these above
-points.
+See `examples/` directory for starter code that we can use for these above points.
 
 ## SSH access
 
@@ -113,3 +110,6 @@ Once the setup is ready, just call `python [script_name]`.
 
 [1]:https://github.com/BerkeleyAutomation/siemens_challenge
 [2]:http://docs.fetchrobotics.com/index.html
+[3]:http://wiki.ros.org/ROS/Tutorials/WritingPublisherSubscriber%28python%29
+[4]:https://docs.fetchrobotics.com/api_overview.html
+[5]:https://docs.ros.org/diamondback/api/actionlib/html/classactionlib_1_1simple__action__client_1_1SimpleActionClient.html

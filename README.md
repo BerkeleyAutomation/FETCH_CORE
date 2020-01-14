@@ -20,8 +20,6 @@ We develop locally on our FETCH Robot. All requirements are met locally. **You m
 
 ### Daniel - Depreciated Tutorial
 
-- [(DEPRECIATED) Daniel, Seimens Challenge] Use the skeleton code provided in `fetch_core/skeleton.py`. This provides minimum functionality to access all relevant parts of the code. For the Siemens challenge ([repository here][1]), we used a different skeleton class, `fetch_core/robot_interface.py`, which has some hard-coded base and head tilting for the challenge, but don't use that.
-
 - Start off by using code similar to `examples/test_skeleton.py` which will give
   you an overview of common code usage. The `examples/` directory has other
   example code usage and screenshots of the Fetch in action.
@@ -29,6 +27,7 @@ We develop locally on our FETCH Robot. All requirements are met locally. **You m
 TODOs:
 
 - [ ] Develop simple test cases where we specify camera coordinates for a robot's gripper to go to, ideally by simply drawing a bounding box around a set of image pixels.  Then this will test if camera-to-workspace is succeeding. There isn't a clean test case for this, and the closest is based on the Siemens challenge code in tandem with `fetch_core/robot_interface.py` and `fetch_core/gripper.py`.
+<<<<<<< HEAD
 
 - [ ] It is not possible (or at least, *very* difficult) to do planning with the arms *and* the base simultaneously with the Fetch using MoveIt. Thus, we can't do the base planning like the HSR does, which means the quickest solution is to develop a heuristic: if the robot's Inverse Kinematics (IK) do not find a solution for the arm, then we can run IK by assuming that the base is located at a different spot (e.g., 0.01 meters forward), and keep trying different locations.
 
@@ -41,6 +40,12 @@ See `examples/` directory for starter code that we can use for these above point
 in your own home directory (give yourself sudo if necessary). The fetch is only
 on the LAN. Make sure that when using it you have enough space.
 
+=======
+
+- [ ] It is not possible (or at least, *very* difficult) to do planning with the arms *and* the base simultaneously with the Fetch using MoveIt. Thus, we can't do the base planning like the HSR does, which means the quickest solution is to develop a heuristic: if the robot's Inverse Kinematics (IK) do not find a solution for the arm, then we can run IK by assuming that the base is located at a different spot (e.g., 0.01 meters forward), and keep trying different locations.
+
+See `examples/` directory for starter code that we can use for these above points.
+>>>>>>> 72d4195... Refactoring of codebase. There are tests to demo different aspecs of the fetch under basic_tests/ as well as metrics from my tests. There is a simplified example of a script that is used to run a linear joint trajectory. Also updated the README inside of examples with information on what is in each folder.
 
 ## SSH access
 

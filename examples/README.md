@@ -1,14 +1,22 @@
-Examples to test out the Fetch. See repository README for status of which tests
-are passing, and usage. See below for images.
+# FETCH_CORE/examples/ README
 
-Tests, roughly in order of newest to oldest (an `ri` in the name means it's
-using an alternative "skeleton" interface, `robot_interface.py`):
+## Folder Breakdown
 
-- `test_basics.py`: test the robot skeleton class and moving to a pose that's
-  defined w.r.t. the base frame.
+### `basic tests/`
 
-- `test_ri.py`: various tests designed to check if the head, base,
-  torso, camera, gripper, etc., are moving as expected.
+Basic tests to implements the functionality of `fetch_core/` and demo the basic functionalities of the robot. `fetch_core/` is overkill and initializes almost everything. For reduced overhead (with less abstraction), see `motion_planning/linear_joint_trajectories`.
+
+The main interfaces that you should import into your script are either `skeleton.py` (**recommended**) or `robot_interface.py`.
+
+Anything that uses the Skeleton class and thus the Arm class (`robot.arm`) from `fetch_core` uses Moveit in the functions: `def move_to_joint_goal` and `def move_to_pose`. Make sure to run `roslaunch fetch_moveit_config move_group.launch` in another tty or terminal window ssh'ed into the FETCH before running your script.
+
+Tests, roughly in order of newest to oldest (an `ri` in the name means it's using an alternative "skeleton" interface, `robot_interface.py`). There is also `test_metrics.md` which is included to give you an idea of runtime. We have run all of our tests locally on our FETCH. See below for images.
+
+- `reset_to_base_position.py`: resets the robot to its base position at a height of 0.
+
+- `test_basics.py`: test the robot skeleton class and moving to a pose that's defined w.r.t. the base frame. opens and closes the gripper. takes depth image and sends it to the relative folder,`base_tests/`.
+
+- `test_ri.py`: various tests designed to check if the head, base, torso, camera, gripper, etc., are moving as expected.
 
 - `test_base_and_position_ri.py`: test the robot base movement.
 
@@ -24,15 +32,22 @@ using an alternative "skeleton" interface, `robot_interface.py`):
 
 - `test_movement_heuristics.py`: should test heuristics for moving the base of
   the robot in case we can't grasp something from the Fetch's current position. 
+  
+### `motion_planning/`
 
-**Still TODO**:
+Example `lienar_joint_trajectory` script that simplifies all the classes in `../fetch_core/` files. Details can be found in comments throughout the `linear_joint_trajetories.py` file.
+
+You can 
+
+
+### `in_progress/`
 
 - `test_camera_to_world.py`: should develop test cases for when the robot goes
   to a pose which was initially specified by its camera coordinates.
 
 
 
-# How to Move Downwards with the Skeleton Code
+## How to Move Downwards with the Skeleton Code
 
 To make the robot move downwards with `test_basics.py` we can create a pose at
 the desired target, and it automatically creates a new pose with negative
@@ -51,7 +66,7 @@ And here's the `wrist_roll_link` just to verify.
 
 
 
-# Wrist Rotation
+## Wrist Rotation
 
 Using `python test_wrist_roll_ri.py`, we noticed something odd, which we need to
 consider for real-world grasping. When we make the robot go to a pose, its wrist
@@ -88,7 +103,7 @@ this into account.
 
 
 
-# Moving to Poses (Outdated but Perhaps Relevant)
+## Moving to Poses (Outdated but Perhaps Relevant)
 
 **Note 06/15/18: this relies on `robot_interface.py` rather than `skeleton.py`
 and may be outdated as we've been changing some of the code, but the images and

@@ -13,7 +13,7 @@ def can_plan(ps, allowed_planning_time=10.0,
                  replan_attempts=20, 
                  tolerance=0.01, 
                  velocity_factor=0.4):
-    error = robot.move_to_pose(pose_name=ps, 
+    error = robot.move_to_pose(pose_name=ps, 654
                      execution_timeout=execution_timeout,
                      group_name=group_name,
                      num_planning_attempts=num_planning_attempts,

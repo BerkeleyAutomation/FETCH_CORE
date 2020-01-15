@@ -17,6 +17,9 @@ class Torso(object):
     MAX_HEIGHT = 0.35
 
     def __init__(self):
+        '''
+        Client is our action server that we send the goal to as well as wait for response
+        '''
         self._client = actionlib.SimpleActionClient(
             ACTION_SERVER, control_msgs.msg.FollowJointTrajectoryAction)
         self._client.wait_for_server(rospy.Duration(10))
@@ -30,8 +33,7 @@ class Torso(object):
             height: The height, in meters, to set the torso to. Values range
                 from Torso.MIN_HEIGHT (0.0) to Torso.MAX_HEIGHT(0.4).
         """
-        height = min(height, Torso.MAX_HEIGHT)
-        height = max(height, Torso.MIN_HEIGHT)
+        height = height if height <= Torso.MAX_HEIGHT and height >= Torso.MIN_HEIGHT else Torso.MIN_HEIGHT
 
         goal = control_msgs.msg.FollowJointTrajectoryGoal()
         goal.trajectory.joint_names.append(TORSO_JOINT_NAME)

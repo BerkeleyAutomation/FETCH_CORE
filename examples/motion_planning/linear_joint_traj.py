@@ -9,14 +9,11 @@ from threading import Lock, Thread
 import numpy as np
 
 #Jackson: [Credit: Adi for finding the values]. Moves the arm from tucked, to partially out, back to tucked. 
-DEFAULT_WAYPOINTS = [
-    [0.100000001490116, 1.57079637050629, 1.57079637050629, 0, 1.57079637050629, 0, 1.57079637050629, 0],
-    [0.155287500830913, 1.29407382142349, 1.30323208557534, -1.57238860721612, 1.65106149726505, -0.688852111001825, 1.40961929449145, 0.51701136699339],
-    [0.210575000171710, 1.01735127234069, 1.03566780064439, -3.14477721443224, 1.73132662402381, -1.37770422200365, 1.2484422184766, 1.03402273398678],
-    [0.265862499512507, 0.740628723257891, 0.768103515713439, -4.71716582164836, 1.81159175078257, -2.06655633300548, 1.08726514246175, 1.55103410098017],
-    [0.321149998853303, 0.463906174175092, 0.500539230782487, -6.28955442886448, 1.89185687754133, -2.7554084440073, 0.926088066446906, 2.06804546797355],
-    [0.329099219075529, 0.174213246266179, 1.05811081186774, -10.0336779258358, 1.35928353626556, -1.22300351166094, -1.28255428407097, 4.49824258148513]
-]
+DEFAULT_WAYPOINTS=[
+        [0.331960222350222, 0.684251505175216, 0.733581945351227, -2.6916493108771, 0.769654475882819, 4.38075713095153, -1.43642147925985, 4.73268820736189], \
+        [0.374525605525235, 0.626130878202896, 0.838277051846567, -2.07213165321071, 1.50637046115835, 0.993503202349398, 0.928070723700663, -1.98752086908437], \
+        [0.100000001490116, 1.57079637050629, 1.57079637050629, 0, 1.57079637050629, 0, 1.57079637050629, 0]]
+DEFAULT_WAYPOINTS = DEFAULT_WAYPOINTS[::-1]
 
 #Adi: These values are from the Fetch documentation https://docs.fetchrobotics.com/robot_hardware.html#forces-and-torques
 MAX_JOINT_VEL = np.array([0.1, 1.25, 1.45, 1.57, 1.52, 1.57, 2.26, 2.26])
@@ -84,6 +81,15 @@ def execute_waypoints_trajectory(waypoints, t):
     _joint_client.send_goal(goal)
     _joint_client.wait_for_result(rospy.Duration(10))
 
+def appendwp(lst, wp):
+    lastwp = lst[-1]
+    print(wp[-1])
+    if any([abs(lastwp[j] - wp[j]) > np.pi for j in range(8)]):
+        print(lastwp[j])
+        appendwp(lst, [(lastwp[j] + wp[j])/2 for j in range(8)])
+        appendwp(lst, wp)
+    else:
+        lst.append(wp)
 
 if __name__ == '__main__':
     # In ROS, nodes are uniquely named. If two nodes with the same
@@ -115,7 +121,20 @@ if __name__ == '__main__':
     # Waypoints should be the same now
     waypoints = [starting_joint_states]
     waypoints.extend(DEFAULT_WAYPOINTS)
+   
+    new_wp = [waypoints[0]]
+
+    for w in range(1, len(waypoints)):
+        appendwp(new_wp, waypoints[w])
+
+    waypoints = new_wp
+
+    #rospy.loginfo("waypoints: " + str(waypoints)) 
+
+    # Way to get the revese of the waypoints
     waypoints += waypoints[::-1] # puts in the reverse of the same waypoints
+                
+
 
     # Jackson: Optimal DTS Works, this uses optimal DTS if fast is true
     fast = True # change to true to use optimal

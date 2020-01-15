@@ -169,7 +169,6 @@ class Arm(object):
         Returns:
             string describing the error if an error occurred, else None.
         """
-        
         print("PLANNING NOW!!!!")
 
         goal_builder = MoveItGoalBuilder()

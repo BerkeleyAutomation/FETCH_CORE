@@ -18,6 +18,8 @@ We develop locally on our FETCH Robot. All requirements are met locally. **You m
 2.  Try to teleoperate your robot! First run `export ROS_MASTER_URI=http://<robot_name_or_ip>:11311` and then `rosrun teleop_twist_keyboard teleop_twist_keyboard.py`.
 3. Once your environment is setup. It should as simple as finding the script you want to run under `examples/` and executing `python SCRIPT-NAME.py`. If the script uses Moveit! as a library for motion planning, run `roslaunch fetch_moveit_config move_group.launch` in a seperate terminal window or tty.
 
+Next Steps: Checkout the `examples` and read the `examples/README.md`! If you are interested in motion_planning check out that folder. All the files should run on the FETCH as just a regular python script given you have installed everything correctly.
+
 ### Daniel - Depreciated Tutorial
 
 - [(DEPRECIATED) Daniel, Seimens Challenge] Use the skeleton code provided in `fetch_core/skeleton.py`. This provides minimum functionality to access all relevant parts of the code. For the Siemens challenge ([repository here][1]), we used a different skeleton class, `fetch_core/robot_interface.py`, which has some hard-coded base and head tilting for the challenge, but don't use that.

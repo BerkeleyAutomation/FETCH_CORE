@@ -1,12 +1,24 @@
-# FETCH_CORE/examples/ README
+# examples README
 
-## Folder Breakdown
+> `/scripts/` fetch_core exists, so why should I care about this?
 
-### `basic tests/`
+Hi whoever is reading this. This folder exists because of latency issues that we experienced using a comprehensive and class-based repo. Our hunch was that this was due to the amount of action servers initialized to listen to topics as well as the class spawned for each one. To fix this, we have gone back to the basics, striping everything but the essentials. Here is a breakdown of each folder and the files in them.
 
-Basic tests to implements the functionality of `fetch_core/` and demo the basic functionalities of the robot. `fetch_core/` is overkill and initializes almost everything. For reduced overhead (with less abstraction), see `motion_planning/linear_joint_trajectories`.
+Other things that we are not initializing that you might want to consider are `moveit`; this was developed for a distributed motion planning project so we plan our own trajectories.
 
-The main interfaces that you should import into your script are either `skeleton.py` (**recommended**) or `robot_interface.py`.
+Our FETCH was the original one, but was updated to Ubuntu 18.04 (which the latest one is on) with ROS melodic installed. We create individual user accounts for each user and each user executes out of their home directory.
+
+### Application: `motion_planning`
+
+We now have a motion planning folder! This is a small file that will move a robotic arm from waypoint to waypoint while also trying to control the acceleration curve to reduce jerk.
+
+### `basic_tests`
+
+These files demonstrate the code needed to get said function working, but with the `skeleton.py` code from `fetch_core`. There is also a `test_metrics.md` file included based off local tests on the FETCH. All the code should execute given that you have installed ROS correctly.
+
+#### About Fetch_core
+
+> Detour: in relation to fetch_core, there are 2 main classes that you import from:` skeleton.py` (**recommended**) or `robot_interface.py`. `skeleton.py` is a striped down version of `robot_interface.py` with a subset of the tops. Read through the code to learn more.
 
 Anything that uses the Skeleton class and thus the Arm class (`robot.arm`) from `fetch_core` uses Moveit in the functions: `def move_to_joint_goal` and `def move_to_pose`. Make sure to run `roslaunch fetch_moveit_config move_group.launch` in another tty or terminal window ssh'ed into the FETCH before running your script.
 
